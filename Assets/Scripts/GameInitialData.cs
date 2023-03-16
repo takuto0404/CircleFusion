@@ -2,6 +2,6 @@ using UnityEngine;
 
 public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
 {
-    [SerializeField] private int shuffleLength;
-    [SerializeField] private int diceMaxValue;
+    [SerializeField] public int shuffleLength;
+    [SerializeField] public int diceMaxValue;
 }

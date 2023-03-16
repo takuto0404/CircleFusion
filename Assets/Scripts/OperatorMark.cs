@@ -1,4 +1,4 @@
 public enum OperatorMark
 {
-    Plus,Minus,Times,Devided
+    Plus,Minus,Times,Devided,Return
 }

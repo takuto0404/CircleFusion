@@ -8,17 +8,17 @@ public static class DiceModel
     /// <summary>
     /// 計算目標のサイコロ
     /// </summary>
-    public static Dice AnswerDice;
+    private static Dice _answerDice;
     
     /// <summary>
     /// 式に使用できるサイコロたち
     /// </summary>
-    public static List<Dice> Dices;
+    private static List<Dice> _dices;
     
     /// <summary>
     /// 活動状態にあるサイコロ
     /// </summary>
-    public static List<Dice> ActiveDices => Dices.Where(dice => dice.IsActive).ToList();
+    public static List<Dice> ActiveDices => _dices.Where(dice => dice.IsActive).ToList();
 
     /// <summary>
     /// サイコロのシャッフルを行う非同期メソッド
@@ -26,7 +26,9 @@ public static class DiceModel
     /// <param name="gameCt"></param>
     public static async UniTask ShuffleDicesAsync(CancellationToken gameCt)
     {
-        
+        var shuffleTasks = Enumerable.Range(0,5).Select(i => _dices[i].ShuffleAsync(i * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
+        shuffleTasks.Add(_answerDice.ShuffleAsync(_dices.Count * GameInitialData.Instance.shuffleLength,gameCt));
+        await UniTask.WhenAll(shuffleTasks);
     }
 
     /// <summary>
@@ -35,7 +37,10 @@ public static class DiceModel
     /// <returns></returns>
     public static bool AnswerCheck()
     {
-        return true;
+        var activeBoxes = _dices.Where(item => item.IsActive).ToArray();
+        if (activeBoxes.Length != 1) return false;
+        var lastBoxNumber = activeBoxes.First().Number.Value;
+        return lastBoxNumber == _answerDice.Number.Value;
     }
 
     /// <summary>
@@ -44,7 +49,10 @@ public static class DiceModel
     /// <param name="hist">復元用の履歴</param>
     public static void ReturnStep(Hist hist)
     {
-        
+        for (var i = 0; i < _dices.Count; i++)
+        {
+            _dices[i] = new Dice(hist.Dices[i]);
+        }
     }
 
     /// <summary>
@@ -55,7 +63,7 @@ public static class DiceModel
     /// <param name="operatorMark">選択された演算記号</param>
     public static void MergeDiceAsync(Dice one, Dice anotherOne,OperatorMark operatorMark)
     {
-        
+        var result = Calculation(one, anotherOne, operatorMark);
     }
 
     /// <summary>
@@ -65,8 +73,22 @@ public static class DiceModel
     /// <param name="anotherOne">もう片方(足す、引く、掛ける、割る方)</param>
     /// <param name="operatorMark">選択された演算記号</param>
     /// <returns></returns>
-    public static int Calculation(Dice one,Dice anotherOne,OperatorMark operatorMark)
+    private static int Calculation(Dice one,Dice anotherOne,OperatorMark operatorMark)
     {
-        return 0;
+        var value1 = one.Number.Value;
+        var value2 = anotherOne.Number.Value;
+        switch (operatorMark)
+        {
+            case OperatorMark.Plus:
+                return value1 + value2;
+            case OperatorMark.Minus:
+                return value1 - value2;
+            case OperatorMark.Times:
+                return value1 * value2;
+            case OperatorMark.Devided:
+                return value1 / value2;
+        }
+
+        return -1;
     }
 }

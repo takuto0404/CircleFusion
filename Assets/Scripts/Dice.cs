@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
@@ -22,10 +22,10 @@ public class Dice
     /// <summary>
     /// このサイコロが活動状態かどうか
     /// </summary>
-    public bool IsActive;
+    public bool IsActive = false;
     
     /// <summary>
-    /// kのサイコロのシャッフルが終わったかどうか
+    /// このサイコロのシャッフルが終わったかどうか
     /// </summary>
     public bool IsFinishedShuffle;
 
@@ -36,6 +36,18 @@ public class Dice
     /// <param name="gameCt"></param>
     public async UniTask ShuffleAsync(float shuffleLength,CancellationToken gameCt)
     {
-        
+        var randomNum = 0;
+        for (var i = 0; i < shuffleLength; i++)
+        {
+            while (randomNum == Number.Value)
+            {
+                randomNum = UnityEngine.Random.Range(1, 7);
+            }
+
+            Number.Value = randomNum;
+            await UniTask.Delay(TimeSpan.FromSeconds(0.02f), cancellationToken: gameCt);
+        }
+
+        IsFinishedShuffle = true;
     }
 }

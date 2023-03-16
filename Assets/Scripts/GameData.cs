@@ -5,7 +5,6 @@ using UniRx;
 /// </summary>
 public static class GameData
 {
-
     /// <summary>
     /// パズルを揃えている途中だったらtrue,メニュー画面などにいるときであればfalseを返す
     /// </summary>
