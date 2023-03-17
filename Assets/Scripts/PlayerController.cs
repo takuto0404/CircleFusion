@@ -9,6 +9,8 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     [SerializeField] private GameUIView gameUIView;
 
+    [SerializeField] private Camera mainCamera;
+
     /// <summary>
     /// パズルごとのプレイヤーの行動・処理を行う非同期メソッド
     /// </summary>
@@ -24,6 +26,9 @@ public class PlayerController : MonoBehaviour
     /// <returns></returns>
     private NumberBox GetHoveredNumberBox()
     {
-        return null;
+        var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+        var distance = 10f;
+        var hit = Physics2D.Raycast(ray.origin, ray.direction, distance);
+        return hit.collider.GetComponent<NumberBox>();
     }
 }

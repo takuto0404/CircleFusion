@@ -12,13 +12,13 @@ public static class GameStateManager
     [RuntimeInitializeOnLoadMethod]
     private static void GameInit()
     {
-        
+        PuzzleFlowAsync().Forget();
     }
 
     /// <summary>
     /// ゲームのおおまかな流れを進行する非同期メソッド
     /// </summary>
-    private static async UniTask GameFlowAsync()
+    private static async UniTask PuzzleFlowAsync()
     {
         
     }
