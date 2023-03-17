@@ -5,6 +5,10 @@ using UniRx;
 
 public class Dice
 {
+    public Dice()
+    {
+        
+    }
     public Dice(Dice dice)
     {
         this.Number = dice.Number;
@@ -22,7 +26,9 @@ public class Dice
     /// <summary>
     /// このサイコロが活動状態かどうか
     /// </summary>
-    public bool IsActive = false;
+    public AsyncReactiveProperty<bool> IsActive = new(false);
+
+    public Dice MergedDice = null;
     
     /// <summary>
     /// このサイコロのシャッフルが終わったかどうか

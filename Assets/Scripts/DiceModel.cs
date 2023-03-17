@@ -61,9 +61,12 @@ public static class DiceModel
     /// <param name="one">片方(足される、引かれる、掛けられる、割られる方)</param>
     /// <param name="anotherOne">もう片方(足す、引く、掛ける、割る方)</param>
     /// <param name="operatorMark">選択された演算記号</param>
-    public static void MergeDiceAsync(Dice one, Dice anotherOne,OperatorMark operatorMark)
+    public static void MergeDice(Dice one, Dice anotherOne,OperatorMark operatorMark)
     {
         var result = Calculation(one, anotherOne, operatorMark);
+        one.Number.Value = result;
+        anotherOne.MergedDice = one;
+        anotherOne.IsActive.Value = false;
     }
 
     /// <summary>

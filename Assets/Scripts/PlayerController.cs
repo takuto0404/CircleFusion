@@ -1,8 +1,10 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UniRx.Triggers;
+using UniRx;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : SingletonMonoBehaviour<PlayerController>
 {
     /// <summary>
     /// MVPパターンのVに接続する
@@ -17,7 +19,33 @@ public class PlayerController : MonoBehaviour
     /// <param name="gameCt"></param>
     public async UniTask PlayerBehavior(CancellationToken gameCt)
     {
-        
+        NumberBox hoveredOne = null;
+        NumberBox hoveredAnotherOne = null;
+
+        while (hoveredAnotherOne == null)
+        {
+            hoveredOne = null;
+            await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
+            while (hoveredOne == null)
+            {
+                hoveredOne = GetHoveredNumberBox();
+            }
+
+            var one = hoveredOne;
+            using (this.UpdateAsObservable().Subscribe(_ =>
+                       gameUIView.DrawLine(one.transform.position, MouseInputProvider.Instance.mousePosition)))
+            {
+                await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
+                hoveredAnotherOne = GetHoveredNumberBox();
+            }
+
+            gameUIView.ClearLine();
+        }
+
+        var canCalculate =
+            GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
+        var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
+        GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,result);
     }
 
     /// <summary>

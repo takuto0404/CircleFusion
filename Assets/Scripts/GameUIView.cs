@@ -19,7 +19,7 @@ public class GameUIView : MonoBehaviour
     /// <summary>
     /// 式に利用できるサイコロの箱
     /// </summary>
-    [SerializeField] private List<NumberBox> numberBoxes;
+    [SerializeField] public List<NumberBox> numberBoxes;
     
     /// <summary>
     /// リタイアするときに押すボタン
@@ -77,6 +77,11 @@ public class GameUIView : MonoBehaviour
     [SerializeField] private TMP_Text comboResultText;
 
     [SerializeField] private List<Button> operatorButtons;
+    
+    /// <summary>
+    /// Canvas上で線を引いてくれるクラス
+    /// </summary>
+    [SerializeField] private UGUILineRenderer drawLine;
 
     /// <summary>
     /// 演算記号の種類と文字列のディク
@@ -98,9 +103,20 @@ public class GameUIView : MonoBehaviour
         var formulaTexts = formulas.Select(formula =>
             $"{formula.One} {_operatorDic[formula.OperatorMark]} {formula.AnotherOne} = {formula.Answer}\n").ToList();
         var text = "";
-        formulaTexts.ForEach(textData => text = text + textData);
+        formulaTexts.ForEach(textData => text += textData);
 
         formulaText.text = text;
+    }
+
+    public void DrawLine(Vector2 position1,Vector2 position2)
+    {
+        var positions = new []{position1, position2};
+        drawLine.SetPositions(positions);
+    }
+
+    public void ClearLine()
+    {
+        drawLine.SetPositions(new[]{Vector2.zero,Vector2.zero});
     }
 
     /// <summary>
@@ -146,10 +162,14 @@ public class GameUIView : MonoBehaviour
     /// </summary>
     /// <param name="gameCt"></param>
     /// <returns>押された結果</returns>
-    private async UniTask<OperatorMark> SelectOperatorsAsync(CancellationToken gameCt)
+    public async UniTask<OperatorMark> SelectOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
     {
+        await ShowOperatorsAsync(canCalculate,gameCt);
+        
         var tasks = operatorButtons.Select(button => button.OnClickAsync(gameCt));
         var result = await UniTask.WhenAny(tasks);
+
+        await HideOperatorsAsync(gameCt);
         return (OperatorMark)result;
     }
 
@@ -158,7 +178,7 @@ public class GameUIView : MonoBehaviour
     /// </summary>
     /// <param name="wasGameCleared">ゲームクリアだったらtrue,ゲームオーバーならfalse</param>
     /// <param name="gameCt"></param>
-    private async UniTask GameFinishedAnimationAsync(bool wasGameCleared, CancellationToken gameCt)
+    public async UniTask GameFinishedAnimationAsync(bool wasGameCleared, CancellationToken gameCt)
     {
         scoreResultText.text = $"ポイント:{GameData.Score}";
         RectTransform rt;
@@ -193,5 +213,10 @@ public class GameUIView : MonoBehaviour
             await comboImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken:gameCt);
         }
 
+        await restartButton.OnClickAsync(gameCt);
+    }
+    public async UniTask RetireAsync(CancellationToken gameCt)
+    {
+        await retireButton.OnClickAsync(gameCt);
     }
 }
