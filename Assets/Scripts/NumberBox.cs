@@ -29,7 +29,7 @@ public class NumberBox : MonoBehaviour
     /// シャッフルが終わった後にクイっと大きくなるやつ
     /// </summary>
     /// <param name="gameCt"></param>
-    private async UniTask FinishedShuffleAnimationAsync(CancellationToken gameCt)
+    public async UniTask FinishedShuffleAnimationAsync(CancellationToken gameCt)
     {
         await gameObject.transform.DOScale(new Vector2(1.2f, 1.2f), 0.2f).SetEase(Ease.InQuart);
         await gameObject.transform.DOScale(new Vector2(1, 1), 0.2f).SetEase(Ease.OutQuart);
@@ -40,6 +40,7 @@ public class NumberBox : MonoBehaviour
     /// </summary>
     public void ShowBox()
     {
+        transform.position = initialPosition;
         gameObject.SetActive(true);
     }
 

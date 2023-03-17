@@ -1,13 +1,16 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
+
 
 public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
 {
     /// <summary>
     /// 
     /// </summary>
-    public Vector2 mousePosition;
+    public Vector2 mousePosition => GetMousePosition();
 
     /// <summary>
     /// マウスが押される/タップされるまで待つ
@@ -15,7 +18,7 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     /// <param name="gameCt"></param>
     public async UniTask OnHoldDownAsync(CancellationToken gameCt)
     {
-        
+        await UniTask.WaitUntil(IsMouseGettingDown,cancellationToken:gameCt);
     }
     
     /// <summary>
@@ -24,7 +27,7 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     /// <param name="gameCt"></param>
     public async UniTask OnHoldUpAsync(CancellationToken gameCt)
     {
-        
+        await UniTask.WaitWhile(IsMouseGettingDown, cancellationToken: gameCt);
     }
 
     /// <summary>
@@ -33,7 +36,15 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     /// <returns>タップされていたらtrue,そうでなければfalse</returns>
     private bool IsMouseGettingDown()
     {
-        return true;
+        if (Application.isEditor)
+        {
+            return Mouse.current.leftButton.isPressed;
+        }
+        else
+        {
+            TouchControl touchControl = Touchscreen.current.touches[0];
+            return touchControl.IsPressed();
+        }
     }
 
     /// <summary>
@@ -42,6 +53,14 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     /// <returns>マウス/タップの位置</returns>
     private Vector2 GetMousePosition()
     {
-        return new Vector2();
+        if (Application.isEditor)
+        {
+            return Mouse.current.position.ReadValue();
+        }
+        else
+        {
+            TouchControl touchControl = Touchscreen.current.touches[0];
+            return touchControl.position.ReadValue();
+        }
     }
 }

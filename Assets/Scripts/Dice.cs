@@ -11,7 +11,7 @@ public class Dice
     }
     public Dice(Dice dice)
     {
-        this.Number = dice.Number;
+        Number = dice.Number;
     }
     /// <summary>
     /// サイコロの数字の実体
@@ -26,14 +26,14 @@ public class Dice
     /// <summary>
     /// このサイコロが活動状態かどうか
     /// </summary>
-    public AsyncReactiveProperty<bool> IsActive = new(false);
+    public readonly AsyncReactiveProperty<bool> IsActive = new(false);
 
     public Dice MergedDice = null;
     
     /// <summary>
     /// このサイコロのシャッフルが終わったかどうか
     /// </summary>
-    public bool IsFinishedShuffle;
+    public readonly AsyncReactiveProperty<bool> IsFinishedShuffle = new(false);
 
     /// <summary>
     /// このサイコロをシャッフルする
@@ -54,6 +54,6 @@ public class Dice
             await UniTask.Delay(TimeSpan.FromSeconds(0.02f), cancellationToken: gameCt);
         }
 
-        IsFinishedShuffle = true;
+        IsFinishedShuffle.Value = true;
     }
 }

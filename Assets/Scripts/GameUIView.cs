@@ -8,9 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
+using UniRx;
 
 public class GameUIView : MonoBehaviour
 {
+    [SerializeField] private Button backStepButton;
     /// <summary>
     /// 答え(計算目標)となる箱
     /// </summary>
@@ -86,7 +88,7 @@ public class GameUIView : MonoBehaviour
     /// <summary>
     /// 演算記号の種類と文字列のディク
     /// </summary>
-    private readonly Dictionary<OperatorMark, string> _operatorDic = new Dictionary<OperatorMark, string>()
+    private readonly Dictionary<OperatorMark, string> _operatorDic = new ()
     {
         { OperatorMark.Plus, "+" },
         { OperatorMark.Minus, "-" },
@@ -108,10 +110,16 @@ public class GameUIView : MonoBehaviour
         formulaText.text = text;
     }
 
+
     public void DrawLine(Vector2 position1,Vector2 position2)
     {
         var positions = new []{position1, position2};
         drawLine.SetPositions(positions);
+    }
+
+    public void PuzzleInit()
+    {
+        numberBoxes.ForEach(box => box.ShowBox());
     }
 
     public void ClearLine()
@@ -148,7 +156,7 @@ public class GameUIView : MonoBehaviour
     /// <param name="gameCt"></param>
     private async UniTask HideOperatorsAsync(CancellationToken gameCt)
     {
-        var activeOperators = operatorButtons.Select(button => button.gameObject).Where(gameObject => gameObject.activeSelf).ToList();
+        var activeOperators = operatorButtons.Select(button => button.gameObject).Where(operatorGameObject => operatorGameObject.activeSelf).ToList();
         foreach (var operatorGameObject in activeOperators)
         {
             operatorGameObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
@@ -160,6 +168,7 @@ public class GameUIView : MonoBehaviour
     /// <summary>
     /// どれかの演算記号のボタンが押されるまで待つ
     /// </summary>
+    /// <param name="canCalculate"></param>
     /// <param name="gameCt"></param>
     /// <returns>押された結果</returns>
     public async UniTask<OperatorMark> SelectOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
@@ -215,8 +224,18 @@ public class GameUIView : MonoBehaviour
 
         await restartButton.OnClickAsync(gameCt);
     }
-    public async UniTask RetireAsync(CancellationToken gameCt)
+    public async UniTask RetireButtonOnClickAsync(CancellationToken gameCt)
     {
         await retireButton.OnClickAsync(gameCt);
+    }
+
+    public IObservable<Unit> ReturnButtonOnClickAsObservable()
+    {
+        return backStepButton.OnClickAsObservable();
+    }
+
+    public async UniTask MoveToEqualAsync(NumberBox numberBox,CancellationToken gameCt)
+    {
+        await numberBox.MoveToEqualAsync(answerBox.transform.position,gameCt);
     }
 }

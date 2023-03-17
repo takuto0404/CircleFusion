@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using Cysharp.Threading.Tasks.Linq;
 using UniRx;
+
 
 public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
 {
@@ -37,7 +37,7 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
 
     public async UniTask RetireAsync(CancellationToken gameCt)
     {
-        await gameUIView.RetireAsync(gameCt);
+        await gameUIView.RetireButtonOnClickAsync(gameCt);
     }
     public void Calculation(NumberBox one,NumberBox anotherOne,OperatorMark operatorMark)
     {
@@ -51,7 +51,10 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
 
         _numberAndDicePairDic = new Dictionary<NumberBox, Dice>();
         _diceAndNumberBoxPairDic.Keys.ToList().ForEach(dice => {_numberAndDicePairDic.Add(_diceAndNumberBoxPairDic[dice],dice);});
+        
+        gameUIView.PuzzleInit();
     }
+    
 
     /// <summary>
     /// パズル中の非同期処理
@@ -59,23 +62,40 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     /// <param name="gameCt"></param>
     public async UniTask PuzzleBehaviorAsync(CancellationToken gameCt)
     {
-        var keyList = _diceAndNumberBoxPairDic.Keys.ToList();
-        var disposable = keyList
-            .Select(dice => dice.Number.Subscribe(num => _diceAndNumberBoxPairDic[dice].SetNumberText(num))).ToList();
+        var disposable = _diceAndNumberBoxPairDic
+            .Select(keyValue => keyValue.Key.Number.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
         disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
-
-        keyList.ForEach(dice => dice.IsActive.Subscribe(async _ =>
+        disposable.Add(gameUIView.ReturnButtonOnClickAsObservable().Subscribe(_ =>
         {
-            await _diceAndNumberBoxPairDic[dice].HideBoxAsync(_diceAndNumberBoxPairDic[dice.MergedDice].GetComponent<RectTransform>().position, gameCt);
+            var step = JamaicaHistory.BackHist();
+            if (step == null) return;
+            DiceModel.ReturnStep(step);
+            SetFormulaText(step.Formula);
+        }));
+
+
+        _diceAndNumberBoxPairDic.ToList().ForEach(keyValue => keyValue.Key.IsActive.Subscribe(async _ =>
+        {
+            await keyValue.Value.HideBoxAsync(_diceAndNumberBoxPairDic[keyValue.Key.MergedDice].GetComponent<RectTransform>().position, gameCt);
             }));
+        _diceAndNumberBoxPairDic.ToList().ForEach(keyValue => keyValue.Key.IsFinishedShuffle.Subscribe(async _ => await keyValue.Value.FinishedShuffleAnimationAsync(gameCt)));
 
         await gameCt.WaitUntilCanceled();
 
         disposable.ForEach(item => item.Dispose());
     }
 
+    public void SetFormulaText(List<Formula> formulas)
+    {
+        gameUIView.SetFormulaText(formulas);
+    }
     public async UniTask GameFinished(bool wasCleared, CancellationToken gameCt)
     {
         await gameUIView.GameFinishedAnimationAsync(wasCleared, gameCt);
+    }
+
+    public async UniTask MoveToEqualAsync(CancellationToken gameCt)
+    {
+        await gameUIView.MoveToEqualAsync(_diceAndNumberBoxPairDic[DiceModel.GetLastDice()],gameCt);
     }
 }

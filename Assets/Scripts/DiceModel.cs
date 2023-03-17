@@ -14,11 +14,8 @@ public static class DiceModel
     /// 式に使用できるサイコロたち
     /// </summary>
     private static List<Dice> _dices;
-    
-    /// <summary>
-    /// 活動状態にあるサイコロ
-    /// </summary>
-    public static List<Dice> ActiveDices => _dices.Where(dice => dice.IsActive).ToList();
+
+    private static Formula _thisTimeFormula;
 
     /// <summary>
     /// サイコロのシャッフルを行う非同期メソッド
@@ -29,6 +26,11 @@ public static class DiceModel
         var shuffleTasks = Enumerable.Range(0,5).Select(i => _dices[i].ShuffleAsync(i * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
         shuffleTasks.Add(_answerDice.ShuffleAsync(_dices.Count * GameInitialData.Instance.shuffleLength,gameCt));
         await UniTask.WhenAll(shuffleTasks);
+    }
+
+    public static Dice GetLastDice()
+    {
+        return _dices.First(dice => dice.IsActive);
     }
 
     /// <summary>
@@ -55,6 +57,21 @@ public static class DiceModel
         }
     }
 
+    public static List<Dice> GetDices()
+    {
+        return _dices;
+    }
+
+    public static void PuzzleInit()
+    {
+        _thisTimeFormula = null;
+    }
+
+    public static Formula GetThisTimeFormula()
+    {
+        return _thisTimeFormula;
+    }
+
     /// <summary>
     /// 二つの選択されたサイコロと演算記号をもとに計算して、片方を非アクティブにする
     /// </summary>
@@ -67,6 +84,8 @@ public static class DiceModel
         one.Number.Value = result;
         anotherOne.MergedDice = one;
         anotherOne.IsActive.Value = false;
+
+        _thisTimeFormula = new Formula(one.Number.Value, anotherOne.Number.Value, operatorMark, result);
     }
 
     /// <summary>

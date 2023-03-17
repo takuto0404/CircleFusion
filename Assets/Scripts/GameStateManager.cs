@@ -20,8 +20,11 @@ public static class GameStateManager
     private static async UniTask PuzzleFlowAsync()
     {
         GameUIPresenter.Instance.PuzzleInit();
+        JamaicaHistory.PuzzleInit();
+        DiceModel.PuzzleInit();
         var gameCts = new CancellationTokenSource();
         CountTimerAsync(gameCts.Token).Forget();
+        GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token).Forget();
 
         await DiceModel.ShuffleDicesAsync(gameCts.Token);
 
@@ -37,7 +40,13 @@ public static class GameStateManager
                 isCleared = false;
                 break;
             }
-            if (DiceModel.AnswerCheck()) isFinished = true;
+            JamaicaHistory.SetHist(DiceModel.GetDices(),DiceModel.GetThisTimeFormula());
+            GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().Formula);
+            if (DiceModel.AnswerCheck())
+            {
+                await GameUIPresenter.Instance.MoveToEqualAsync(gameCts.Token);
+                isFinished = true;
+            }
         }
         gameCts.Cancel();
 
