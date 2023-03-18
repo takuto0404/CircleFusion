@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine;
 
 public static class JamaicaHistory
 {
@@ -15,12 +16,17 @@ public static class JamaicaHistory
 
     public static Hist LastHist()
     {
-        return _histories[_histories.Count];
+        return _histories[^1];
+    }
+
+    public static void SetInitHist(List<Dice> dices)
+    {
+        _histories.Add(new Hist(dices,new List<Formula>()));
     }
 
     public static void SetHist(List<Dice> dices, Formula formula)
     {
-        var lastFormulas = _histories[_histories.Count].Formula;
+        var lastFormulas = _histories[^1].Formula;
         lastFormulas.Add(formula);
         _histories.Add(new Hist(dices,lastFormulas));
     }
@@ -28,7 +34,8 @@ public static class JamaicaHistory
     public static Hist BackHist()
     {
         if (_histories.Count == 0) return null;
-        _histories.RemoveAt(_histories.Count);
-        return _histories[_histories.Count];
+        Debug.Log(_histories.Count);
+        _histories.RemoveAt(_histories.Count - 1);
+        return _histories[^1];
     }
 }

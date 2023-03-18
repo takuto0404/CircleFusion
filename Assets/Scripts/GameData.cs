@@ -6,22 +6,28 @@ using UniRx;
 public static class GameData
 {
     /// <summary>
-    /// パズルを揃えている途中だったらtrue,メニュー画面などにいるときであればfalseを返す
-    /// </summary>
-    public static bool IsPuzzling;
-    
-    /// <summary>
     /// ゲーム中のタイマーの数値
     /// </summary>
-    public static ReactiveProperty<float> Timer;
-    
+    public static readonly ReactiveProperty<float> Timer = new();
+
     /// <summary>
     /// ゲーム中のスコア
     /// </summary>
-    public static int Score;
-    
+    public static int Score = 0;
+
     /// <summary>
     /// 連続正解数
     /// </summary>
-    public static int Combo;
+    public static int Combo = 0;
+
+    public static void Win()
+    {
+        Combo++;
+        Score += Combo;
+    }
+
+    public static void Lose()
+    {
+        Combo = 0;
+    }
 }

@@ -30,7 +30,7 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
             true,
             diceOneNumber >= diceAnotherOneNumber,
             true,
-            diceAnotherOneNumber != 0 && diceOneNumber / diceAnotherOneNumber % 1 == 0,
+            diceAnotherOneNumber != 0 && ((float)diceOneNumber / (float)diceAnotherOneNumber) % 1 == 0,
             true
         };
     }
@@ -48,6 +48,9 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     {
         _diceAndNumberBoxPairDic = new Dictionary<Dice, NumberBox>();
         gameUIView.numberBoxes.ForEach(box => { _diceAndNumberBoxPairDic.Add(new Dice(), box); });
+        var answerDice = new Dice();
+        DiceModel.SetDice(_diceAndNumberBoxPairDic.Keys.ToList(),answerDice);
+        _diceAndNumberBoxPairDic.Add(answerDice,gameUIView.answerBox);
 
         _numberAndDicePairDic = new Dictionary<NumberBox, Dice>();
         _diceAndNumberBoxPairDic.Keys.ToList().ForEach(dice => {_numberAndDicePairDic.Add(_diceAndNumberBoxPairDic[dice],dice);});
@@ -65,22 +68,28 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
         var disposable = _diceAndNumberBoxPairDic
             .Select(keyValue => keyValue.Key.Number.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
         disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
-        disposable.Add(gameUIView.ReturnButtonOnClickAsObservable().Subscribe(_ =>
+        disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
         {
             var step = JamaicaHistory.BackHist();
             if (step == null) return;
-            DiceModel.ReturnStep(step);
+            DiceModel.BackStep(step);
             SetFormulaText(step.Formula);
+            _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
+            {
+                if(keyValue.Key.IsActive) keyValue.Value.ShowBox();
+            });
         }));
 
+        var diceList = _diceAndNumberBoxPairDic.Keys.ToList();
+        var disposeList = diceList.Select(dice => dice.MergedDice.Where(_ => !dice.IsActive).Subscribe(async merged =>
+            {
+                await _diceAndNumberBoxPairDic[dice]
+                    .HideBoxAsync(_diceAndNumberBoxPairDic[merged].GetComponent<RectTransform>().position, gameCt);
+            }))
+            .ToList();
+        disposeList.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue => keyValue.Key.IsFinishedShuffle.Subscribe(async _ => await keyValue.Value.FinishedShuffleAnimationAsync(gameCt))).ToList());
 
-        _diceAndNumberBoxPairDic.ToList().ForEach(keyValue => keyValue.Key.IsActive.Subscribe(async _ =>
-        {
-            await keyValue.Value.HideBoxAsync(_diceAndNumberBoxPairDic[keyValue.Key.MergedDice].GetComponent<RectTransform>().position, gameCt);
-            }));
-        _diceAndNumberBoxPairDic.ToList().ForEach(keyValue => keyValue.Key.IsFinishedShuffle.Subscribe(async _ => await keyValue.Value.FinishedShuffleAnimationAsync(gameCt)));
-
-        await gameCt.WaitUntilCanceled();
+        await UniTask.WaitUntilCanceled(gameCt);
 
         disposable.ForEach(item => item.Dispose());
     }
