@@ -19,14 +19,16 @@ public static class GameStateManager
     /// </summary>
     private static async UniTask PuzzleFlowAsync()
     {
+        DiceModel.PuzzleInit();
         GameUIPresenter.Instance.PuzzleInit();
         JamaicaHistory.PuzzleInit();
-        DiceModel.PuzzleInit();
         var gameCts = new CancellationTokenSource();
         CountTimerAsync(gameCts.Token).Forget();
         GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token).Forget();
 
         await DiceModel.ShuffleDicesAsync(gameCts.Token);
+        
+        JamaicaHistory.SetInitHist(DiceModel.GetDices());
 
         var isFinished = false;
         var isCleared = true;
@@ -53,10 +55,12 @@ public static class GameStateManager
         var menuCts = new CancellationTokenSource();
         if (isCleared)
         {
+            GameData.Win();
             await GameClearedAsync(menuCts.Token);
         }
         else
         {
+            GameData.Lose();
             await GameOveredAsync(menuCts.Token);
         }
     }

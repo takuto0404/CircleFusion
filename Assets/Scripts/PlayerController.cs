@@ -3,6 +3,9 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UniRx.Triggers;
 using UniRx;
+using System.Collections.Generic;
+using UnityEngine.EventSystems;
+using System.Linq;
 
 public class PlayerController : SingletonMonoBehaviour<PlayerController>
 {
@@ -10,8 +13,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     /// MVPパターンのVに接続する
     /// </summary>
     [SerializeField] private GameUIView gameUIView;
-
-    [SerializeField] private Camera mainCamera;
+    
 
     /// <summary>
     /// パズルごとのプレイヤーの行動・処理を行う非同期メソッド
@@ -21,31 +23,36 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     {
         NumberBox hoveredOne = null;
         NumberBox hoveredAnotherOne = null;
+        var operatorResult = OperatorMark.Return;
 
-        while (hoveredAnotherOne == null)
+        while (operatorResult == OperatorMark.Return)
         {
             hoveredOne = null;
-            await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
-            while (hoveredOne == null)
+            hoveredAnotherOne = null;
+            while (hoveredAnotherOne == null)
             {
-                hoveredOne = GetHoveredNumberBox();
-            }
+                while (hoveredOne == null)
+                {
+                    await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
+                    hoveredOne = GetHoveredNumberBox();
+                }
 
-            var one = hoveredOne;
-            using (this.UpdateAsObservable().Subscribe(_ =>
-                       gameUIView.DrawLine(one.transform.position, MouseInputProvider.Instance.mousePosition)))
-            {
-                await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
-                hoveredAnotherOne = GetHoveredNumberBox();
-            }
+                var one = hoveredOne;
+                using (this.UpdateAsObservable().Subscribe(_ =>
+                           gameUIView.DrawLine(one.GetComponent<RectTransform>().position, MouseInputProvider.Instance.MousePosition)))
+                {
+                    await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
+                    hoveredAnotherOne = GetHoveredNumberBox();
+                }
 
-            gameUIView.ClearLine();
+                gameUIView.ClearLine();
+            }
+            var canCalculate =
+                GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
+            var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
+            operatorResult = result;
         }
-
-        var canCalculate =
-            GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
-        var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
-        GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,result);
+        GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,operatorResult);
     }
 
     /// <summary>
@@ -54,9 +61,17 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     /// <returns></returns>
     private NumberBox GetHoveredNumberBox()
     {
-        var ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-        var distance = 10f;
-        var hit = Physics2D.Raycast(ray.origin, ray.direction, distance);
-        return hit.collider.GetComponent<NumberBox>();
+        PointerEventData pointData = new PointerEventData(EventSystem.current);
+        List<RaycastResult> RayResult = new List<RaycastResult>();
+        pointData.position = Input.mousePosition;
+        EventSystem.current.RaycastAll(pointData, RayResult);
+        var box = RayResult.Select(x => x.gameObject.GetComponent<NumberBox>()).Where(x => x != null)
+            .Where(x => !x.isAnswerBox);
+        if (!box.Any())
+        {
+            return null;
+        }
+
+        return box.First();
     }
 }

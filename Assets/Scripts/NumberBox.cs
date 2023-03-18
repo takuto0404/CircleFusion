@@ -16,6 +16,8 @@ public class NumberBox : MonoBehaviour
     /// </summary>
     [SerializeField] private TMP_Text numberText;
 
+    [SerializeField] public bool isAnswerBox;
+
     /// <summary>
     /// numberTextの数字を更新
     /// </summary>
@@ -40,7 +42,7 @@ public class NumberBox : MonoBehaviour
     /// </summary>
     public void ShowBox()
     {
-        transform.position = initialPosition;
+        GetComponent<RectTransform>().localPosition = initialPosition;
         gameObject.SetActive(true);
     }
 

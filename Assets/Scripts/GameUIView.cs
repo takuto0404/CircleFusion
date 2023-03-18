@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UniRx;
+using Random = System.Random;
 
 public class GameUIView : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class GameUIView : MonoBehaviour
     /// <summary>
     /// 答え(計算目標)となる箱
     /// </summary>
-    [SerializeField] private NumberBox answerBox;
+    [SerializeField] public NumberBox answerBox;
     
     /// <summary>
     /// 式に利用できるサイコロの箱
@@ -113,6 +114,7 @@ public class GameUIView : MonoBehaviour
 
     public void DrawLine(Vector2 position1,Vector2 position2)
     {
+        Debug.Log("線引く");
         var positions = new []{position1, position2};
         drawLine.SetPositions(positions);
     }
@@ -132,7 +134,7 @@ public class GameUIView : MonoBehaviour
     /// </summary>
     public void SetTimerText(float time)
     {
-        timeText.text = time.ToString();
+        timeText.text = $"じかん:{time.ToString()}";
     }
 
     /// <summary>
@@ -146,7 +148,7 @@ public class GameUIView : MonoBehaviour
         {
             operatorButtons[i].gameObject.SetActive(canCalculate[i]);
             operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
-            await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f).ToUniTask(cancellationToken: gameCt);
+            await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.2f).ToUniTask(cancellationToken: gameCt);
         }
     }
 
@@ -154,13 +156,11 @@ public class GameUIView : MonoBehaviour
     /// 演算記号を順々にアニメーションをつけて隠す
     /// </summary>
     /// <param name="gameCt"></param>
-    private async UniTask HideOperatorsAsync(CancellationToken gameCt)
+    private async UniTask HideOperators()
     {
         var activeOperators = operatorButtons.Select(button => button.gameObject).Where(operatorGameObject => operatorGameObject.activeSelf).ToList();
         foreach (var operatorGameObject in activeOperators)
         {
-            operatorGameObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
-            await operatorGameObject.transform.DORotate(new Vector3(0, 0, 20), 0.1f).ToUniTask(cancellationToken: gameCt);
             operatorGameObject.SetActive(false);
         }
     }
@@ -173,12 +173,12 @@ public class GameUIView : MonoBehaviour
     /// <returns>押された結果</returns>
     public async UniTask<OperatorMark> SelectOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
     {
-        await ShowOperatorsAsync(canCalculate,gameCt);
+        ShowOperatorsAsync(canCalculate,gameCt).Forget();
         
         var tasks = operatorButtons.Select(button => button.OnClickAsync(gameCt));
         var result = await UniTask.WhenAny(tasks);
 
-        await HideOperatorsAsync(gameCt);
+        await HideOperators();
         return (OperatorMark)result;
     }
 
@@ -190,6 +190,7 @@ public class GameUIView : MonoBehaviour
     public async UniTask GameFinishedAnimationAsync(bool wasGameCleared, CancellationToken gameCt)
     {
         scoreResultText.text = $"ポイント:{GameData.Score}";
+        scoreText.text = $"ポイント:{GameData.Score}";
         RectTransform rt;
         if (wasGameCleared)
         {
@@ -229,13 +230,13 @@ public class GameUIView : MonoBehaviour
         await retireButton.OnClickAsync(gameCt);
     }
 
-    public IObservable<Unit> ReturnButtonOnClickAsObservable()
+    public IObservable<Unit> BackButtonOnClickAsObservable()
     {
         return backStepButton.OnClickAsObservable();
     }
 
     public async UniTask MoveToEqualAsync(NumberBox numberBox,CancellationToken gameCt)
     {
-        await numberBox.MoveToEqualAsync(answerBox.transform.position,gameCt);
+        await numberBox.MoveToEqualAsync(answerBox.GetComponent<RectTransform>().position,gameCt);
     }
 }

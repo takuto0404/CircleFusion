@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public static class DiceModel
 {
@@ -23,7 +24,7 @@ public static class DiceModel
     /// <param name="gameCt"></param>
     public static async UniTask ShuffleDicesAsync(CancellationToken gameCt)
     {
-        var shuffleTasks = Enumerable.Range(0,5).Select(i => _dices[i].ShuffleAsync(i * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
+        var shuffleTasks = Enumerable.Range(0,5).Select(i => _dices[i].ShuffleAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
         shuffleTasks.Add(_answerDice.ShuffleAsync(_dices.Count * GameInitialData.Instance.shuffleLength,gameCt));
         await UniTask.WhenAll(shuffleTasks);
     }
@@ -49,7 +50,7 @@ public static class DiceModel
     /// 一つ手順を戻る
     /// </summary>
     /// <param name="hist">復元用の履歴</param>
-    public static void ReturnStep(Hist hist)
+    public static void BackStep(Hist hist)
     {
         for (var i = 0; i < _dices.Count; i++)
         {
@@ -67,6 +68,14 @@ public static class DiceModel
         _thisTimeFormula = null;
     }
 
+    public static void SetDice(List<Dice> dices,Dice answerDice)
+    {
+        _dices = new List<Dice>();
+        _answerDice = answerDice;
+        _answerDice.IsAnswerBox = true;
+        dices.ForEach(item => _dices.Add(item));
+    }
+
     public static Formula GetThisTimeFormula()
     {
         return _thisTimeFormula;
@@ -81,11 +90,10 @@ public static class DiceModel
     public static void MergeDice(Dice one, Dice anotherOne,OperatorMark operatorMark)
     {
         var result = Calculation(one, anotherOne, operatorMark);
-        one.Number.Value = result;
-        anotherOne.MergedDice = one;
-        anotherOne.IsActive.Value = false;
-
         _thisTimeFormula = new Formula(one.Number.Value, anotherOne.Number.Value, operatorMark, result);
+        one.Number.Value = result;
+        anotherOne.IsActive = false;
+        anotherOne.MergedDice.Value = one;
     }
 
     /// <summary>

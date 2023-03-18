@@ -10,7 +10,7 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     /// <summary>
     /// 
     /// </summary>
-    public Vector2 mousePosition => GetMousePosition();
+    public Vector2 MousePosition => GetMousePosition();
 
     /// <summary>
     /// マウスが押される/タップされるまで待つ
