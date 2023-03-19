@@ -114,7 +114,6 @@ public class GameUIView : MonoBehaviour
 
     public void DrawLine(Vector2 position1,Vector2 position2)
     {
-        Debug.Log("線引く");
         var positions = new []{position1, position2};
         drawLine.SetPositions(positions);
     }
@@ -122,6 +121,12 @@ public class GameUIView : MonoBehaviour
     public void PuzzleInit()
     {
         numberBoxes.ForEach(box => box.ShowBox());
+        gameClearPanel.SetActive(false);
+        gameOverPanel.SetActive(false);
+        comboImage.SetActive(false);
+        restartButton.gameObject.SetActive(false);
+        scoreResultText.gameObject.SetActive(false);
+        formulaText.text = "";
     }
 
     public void ClearLine()
@@ -148,7 +153,7 @@ public class GameUIView : MonoBehaviour
         {
             operatorButtons[i].gameObject.SetActive(canCalculate[i]);
             operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
-            await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.2f).ToUniTask(cancellationToken: gameCt);
+            await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f).ToUniTask(cancellationToken: gameCt);
         }
     }
 
@@ -156,12 +161,11 @@ public class GameUIView : MonoBehaviour
     /// 演算記号を順々にアニメーションをつけて隠す
     /// </summary>
     /// <param name="gameCt"></param>
-    private async UniTask HideOperators()
+    private void HideOperators()
     {
-        var activeOperators = operatorButtons.Select(button => button.gameObject).Where(operatorGameObject => operatorGameObject.activeSelf).ToList();
-        foreach (var operatorGameObject in activeOperators)
+        foreach (var operatorButton in operatorButtons)
         {
-            operatorGameObject.SetActive(false);
+            operatorButton.gameObject.SetActive(false);
         }
     }
 
@@ -173,12 +177,15 @@ public class GameUIView : MonoBehaviour
     /// <returns>押された結果</returns>
     public async UniTask<OperatorMark> SelectOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
     {
-        ShowOperatorsAsync(canCalculate,gameCt).Forget();
+        var operatorCts = new CancellationTokenSource();
+        var mergedCts = CancellationTokenSource.CreateLinkedTokenSource(gameCt, operatorCts.Token);
+        ShowOperatorsAsync(canCalculate,mergedCts.Token).Forget();
         
-        var tasks = operatorButtons.Select(button => button.OnClickAsync(gameCt));
+        var tasks = operatorButtons.Select(button => button.OnClickAsync(mergedCts.Token));
         var result = await UniTask.WhenAny(tasks);
-
-        await HideOperators();
+        
+        operatorCts.Cancel();
+        HideOperators();
         return (OperatorMark)result;
     }
 
@@ -222,9 +229,10 @@ public class GameUIView : MonoBehaviour
             comboImage.SetActive(true);
             await comboImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken:gameCt);
         }
-
+        
         await restartButton.OnClickAsync(gameCt);
     }
+    
     public async UniTask RetireButtonOnClickAsync(CancellationToken gameCt)
     {
         await retireButton.OnClickAsync(gameCt);

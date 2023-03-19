@@ -6,9 +6,10 @@ public class UGUILineRenderer : Graphic
 {
     public Vector2[] positions = { };
     [SerializeField] private float weight;
-    
+
     public void SetPositions(Vector2[] newPositions)
     {
+        this.rectTransform.localPosition = Vector3.zero;
         var processedPosition =
             newPositions.Select(position => new Vector2(position.x - 960, position.y - 540)).ToArray();
         positions = processedPosition;

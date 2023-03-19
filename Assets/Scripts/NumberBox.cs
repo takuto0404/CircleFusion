@@ -42,7 +42,9 @@ public class NumberBox : MonoBehaviour
     /// </summary>
     public void ShowBox()
     {
-        GetComponent<RectTransform>().localPosition = initialPosition;
+        var rt = GetComponent<RectTransform>();
+        rt.localPosition = initialPosition;
+        rt.localScale = new Vector2(1, 1);
         gameObject.SetActive(true);
     }
 

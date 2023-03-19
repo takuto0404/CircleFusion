@@ -1,3 +1,5 @@
+using System;
+
 public class Formula
 {
     public Formula(int one ,int anotherOne,OperatorMark operatorMark,int answer)
@@ -8,7 +10,8 @@ public class Formula
         Answer = answer;
     }
     public readonly int One;
-    public int AnotherOne;
+    public readonly int AnotherOne;
     public readonly OperatorMark OperatorMark;
-    public int Answer;
+    public readonly int Answer;
+    
 }

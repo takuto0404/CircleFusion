@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -70,6 +71,8 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
         disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
         disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
         {
+            //TODO:どうすればそのときのDiceの状態として保存できるのか？
+            //TODO:LineRendererが引けない？
             var step = JamaicaHistory.BackHist();
             if (step == null) return;
             DiceModel.BackStep(step);
@@ -105,6 +108,7 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
 
     public async UniTask MoveToEqualAsync(CancellationToken gameCt)
     {
+        await UniTask.Delay(TimeSpan.FromSeconds(0.75),cancellationToken:gameCt);
         await gameUIView.MoveToEqualAsync(_diceAndNumberBoxPairDic[DiceModel.GetLastDice()],gameCt);
     }
 }

@@ -27,10 +27,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
         while (operatorResult == OperatorMark.Return)
         {
-            hoveredOne = null;
             hoveredAnotherOne = null;
             while (hoveredAnotherOne == null)
             {
+                gameUIView.ClearLine();
+                hoveredOne = null;
                 while (hoveredOne == null)
                 {
                     await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
@@ -39,17 +40,18 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
                 var one = hoveredOne;
                 using (this.UpdateAsObservable().Subscribe(_ =>
-                           gameUIView.DrawLine(one.GetComponent<RectTransform>().position, MouseInputProvider.Instance.MousePosition)))
+                           gameUIView.DrawLine(one.transform.position, MouseInputProvider.Instance.MousePosition)))
                 {
                     await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
                     hoveredAnotherOne = GetHoveredNumberBox();
+                    Debug.Log(hoveredAnotherOne);
                 }
-
-                gameUIView.ClearLine();
+                
             }
             var canCalculate =
                 GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
             var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
+            gameUIView.ClearLine();
             operatorResult = result;
         }
         GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,operatorResult);
