@@ -86,29 +86,21 @@ public class GameUIView : MonoBehaviour
     /// </summary>
     [SerializeField] private UGUILineRenderer drawLine;
 
-    /// <summary>
-    /// 演算記号の種類と文字列のディク
-    /// </summary>
-    private readonly Dictionary<OperatorMark, string> _operatorDic = new ()
-    {
-        { OperatorMark.Plus, "+" },
-        { OperatorMark.Minus, "-" },
-        { OperatorMark.Times, "×" },
-        { OperatorMark.Devided, "÷" }
-    };
+    [SerializeField] private Button settingButton;
 
+    [SerializeField] private GameObject settingPanel;
+    [SerializeField] private Slider diceMaxSlider;
+    [SerializeField] private Slider diceAmountSlider;
+    [SerializeField] private Button settingBackButton;
+    [SerializeField] private Button settingRestartButton;
+    
     /// <summary>
     /// 右上の式のテキストを更新する
     /// </summary>
     /// <param name="formulas">式の履歴リスト</param>
-    public void SetFormulaText(List<Formula> formulas)
+    public void SetFormulaText(string formulaText)
     {
-        var formulaTexts = formulas.Select(formula =>
-            $"{formula.One} {_operatorDic[formula.OperatorMark]} {formula.AnotherOne} = {formula.Answer}\n").ToList();
-        var text = "";
-        formulaTexts.ForEach(textData => text += textData);
-
-        formulaText.text = text;
+        this.formulaText.text = formulaText;
     }
 
 
@@ -118,6 +110,10 @@ public class GameUIView : MonoBehaviour
         drawLine.SetPositions(positions);
     }
 
+    public string GetFormulaText()
+    {
+        return formulaText.text;
+    }
     public void PuzzleInit()
     {
         numberBoxes.ForEach(box => box.ShowBox());
@@ -241,6 +237,20 @@ public class GameUIView : MonoBehaviour
     public IObservable<Unit> BackButtonOnClickAsObservable()
     {
         return backStepButton.OnClickAsObservable();
+    }
+
+    public IObservable<Unit> SettingButtonOnClickAsObservable()
+    {
+        return settingButton.OnClickAsObservable();
+    }
+
+    public async UniTask SettingProgress(CancellationToken gameCt)
+    {
+        settingPanel.SetActive(true);
+        var task1 = settingBackButton.OnClickAsync(gameCt);
+        var task2 = settingRestartButton.OnClickAsync(gameCt);
+        await UniTask.WhenAny(task1, task2);
+        settingPanel.SetActive(false);
     }
 
     public async UniTask MoveToEqualAsync(NumberBox numberBox,CancellationToken gameCt)

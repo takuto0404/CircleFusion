@@ -54,7 +54,8 @@ public static class DiceModel
     {
         for (var i = 0; i < _dices.Count; i++)
         {
-            _dices[i] = new Dice(hist.Dices[i]);
+            _dices[i].Number.Value = hist.Dices[i].DiceInfo.diceNumber;
+            _dices[i].IsActive = hist.Dices[i].DiceInfo.isActive;
         }
     }
 

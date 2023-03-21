@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
 
@@ -16,19 +17,17 @@ public static class JamaicaHistory
 
     public static Hist LastHist()
     {
-        return _histories.Pop();
+        return _histories.Peek();
     }
 
     public static void SetInitHist(List<Dice> dices)
     {
-        _histories.Push(new Hist(dices,new List<Formula>()));
+        _histories.Push(new Hist(dices,""));
     }
 
-    public static void SetHist(List<Dice> dices, Formula formula)
+    public static void SetHist(List<Dice> dices, string formulaText)
     {
-        var lastFormulas = _histories.Peek().Formula;
-        lastFormulas.Add(formula);
-        _histories.Push(new Hist(dices,lastFormulas));
+        _histories.Push(new Hist(dices,formulaText));
     }
     
     public static Hist BackHist()

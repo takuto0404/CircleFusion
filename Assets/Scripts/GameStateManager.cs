@@ -26,7 +26,7 @@ public static class GameStateManager
             JamaicaHistory.PuzzleInit();
             var gameCts = new CancellationTokenSource();
             CountTimerAsync(gameCts.Token).Forget();
-            GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token).Forget();
+
 
             await DiceModel.ShuffleDicesAsync(gameCts.Token);
         
@@ -38,17 +38,18 @@ public static class GameStateManager
             {
                 var retireTask = GameUIPresenter.Instance.RetireAsync(gameCts.Token);
                 var gameTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
-                var result = await UniTask.WhenAny(retireTask, gameTask);
-                if (result == 0)
+                var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
+                var result = await UniTask.WhenAny(retireTask, gameTask,uiTask);
+                if (result == 0 || result == 2)
                 {
                     isCleared = false;
                     break;
                 }
-                JamaicaHistory.SetHist(DiceModel.GetDices(),DiceModel.GetThisTimeFormula());
-                GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().Formula);
+
+                JamaicaHistory.SetHist(DiceModel.GetDices(),GameUIPresenter.Instance.MakeFormulaText(DiceModel.GetThisTimeFormula()));
+                GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().FormulaText);
                 if (DiceModel.AnswerCheck())
                 {
-                    await GameUIPresenter.Instance.MoveToEqualAsync(gameCts.Token);
                     isFinished = true;
                 }
             }
@@ -57,6 +58,7 @@ public static class GameStateManager
             var menuCts = new CancellationTokenSource();
             if (isCleared)
             {
+                await GameUIPresenter.Instance.MoveToEqualAsync(gameCts.Token);
                 GameData.Win();
                 await GameClearedAsync(menuCts.Token);
             }
@@ -67,6 +69,7 @@ public static class GameStateManager
             }
         }
     }
+    
 
     /// <summary>
     /// パズルソルブ中にタイマーのカウントを行う非同期メソッド

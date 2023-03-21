@@ -9,9 +9,10 @@ public class Dice
     {
         
     }
-    public Dice(Dice dice)
+    public Dice(DiceInfoClass diceInfo)
     {
-        Number = dice.Number;
+        Number.Value = diceInfo.DiceInfo.diceNumber;
+        IsActive = diceInfo.DiceInfo.isActive;
     }
     /// <summary>
     /// サイコロの数字の実体

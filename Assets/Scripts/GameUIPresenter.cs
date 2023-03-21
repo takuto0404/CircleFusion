@@ -15,6 +15,18 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     /// </summary>
     [SerializeField] private GameUIView gameUIView;
     
+    /// <summary>
+    /// 演算記号の種類と文字列のディク
+    /// </summary>
+    private readonly Dictionary<OperatorMark, string> _operatorDic = new ()
+    {
+        { OperatorMark.Plus, "+" },
+        { OperatorMark.Minus, "-" },
+        { OperatorMark.Times, "×" },
+        { OperatorMark.Devided, "÷" }
+    };
+
+    
 
     /// <summary>
     /// View担当のNumberBoxとModel担当のDiceクラスの紐付け
@@ -22,6 +34,11 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     private Dictionary<Dice, NumberBox> _diceAndNumberBoxPairDic = new();
     private Dictionary<NumberBox,Dice> _numberAndDicePairDic = new();
 
+    public string GetFormulaText()
+    {
+        return gameUIView.GetFormulaText();
+    }
+    
     public bool[] CanCalculate(NumberBox one,NumberBox anotherOne)
     {
         var diceOneNumber = _numberAndDicePairDic[one].Number.Value;
@@ -43,6 +60,15 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     public void Calculation(NumberBox one,NumberBox anotherOne,OperatorMark operatorMark)
     {
         DiceModel.MergeDice(_numberAndDicePairDic[one],_numberAndDicePairDic[anotherOne],operatorMark);
+    }
+    
+    public string MakeFormulaText(Formula newFormula)
+    {
+        var newFormulaText = 
+            $"{newFormula.One} {_operatorDic[newFormula.OperatorMark]} {newFormula.AnotherOne} = {newFormula.Answer}\n";
+        var text = GameUIPresenter.Instance.GetFormulaText();
+        text += newFormulaText;
+        return text;
     }
 
     public void PuzzleInit()
@@ -66,22 +92,28 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     /// <param name="gameCt"></param>
     public async UniTask PuzzleBehaviorAsync(CancellationToken gameCt)
     {
+        bool isGameRestart = false;
+        
         var disposable = _diceAndNumberBoxPairDic
             .Select(keyValue => keyValue.Key.Number.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
         disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
         disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
         {
-            //TODO:どうすればそのときのDiceの状態として保存できるのか？
-            //TODO:LineRendererが引けない？
             var step = JamaicaHistory.BackHist();
             if (step == null) return;
             DiceModel.BackStep(step);
-            SetFormulaText(step.Formula);
+            SetFormulaText(step.FormulaText);
             _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
             {
                 if(keyValue.Key.IsActive) keyValue.Value.ShowBox();
             });
         }));
+        gameUIView.SettingButtonOnClickAsObservable()
+            .Subscribe(async _ =>
+            {
+                isGameRestart = true;
+                await gameUIView.SettingProgress(gameCt);
+            });
 
         var diceList = _diceAndNumberBoxPairDic.Keys.ToList();
         var disposeList = diceList.Select(dice => dice.MergedDice.Where(_ => !dice.IsActive).Subscribe(async merged =>
@@ -92,14 +124,13 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
             .ToList();
         disposeList.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue => keyValue.Key.IsFinishedShuffle.Subscribe(async _ => await keyValue.Value.FinishedShuffleAnimationAsync(gameCt))).ToList());
 
-        await UniTask.WaitUntilCanceled(gameCt);
-
+        var result = await UniTask.WhenAny(UniTask.WaitUntilCanceled(gameCt),UniTask.WaitUntil(() =>isGameRestart,cancellationToken:gameCt));
         disposable.ForEach(item => item.Dispose());
     }
 
-    public void SetFormulaText(List<Formula> formulas)
+    public void SetFormulaText(string formulaText)
     {
-        gameUIView.SetFormulaText(formulas);
+        gameUIView.SetFormulaText(formulaText);
     }
     public async UniTask GameFinished(bool wasCleared, CancellationToken gameCt)
     {

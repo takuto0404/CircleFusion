@@ -44,10 +44,11 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
                 {
                     await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
                     hoveredAnotherOne = GetHoveredNumberBox();
-                    Debug.Log(hoveredAnotherOne);
                 }
                 
             }
+
+            gameUIView.DrawLine(hoveredOne.transform.position, hoveredAnotherOne.transform.position);
             var canCalculate =
                 GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
             var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
