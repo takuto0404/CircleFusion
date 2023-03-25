@@ -132,6 +132,7 @@ public class GameUIView : MonoBehaviour
             numberBoxes.Clear();
             for (int i = 0; i < numberOfDice;i++)
             {
+                Debug.Log("Instantiate!");
                 var let = 310;
                 var theta = (360 / numberOfDice) * i;
                 Vector2 pos = new Vector2(Mathf.Sin(theta * Mathf.Deg2Rad) * let, Mathf.Cos(theta * Mathf.Deg2Rad) * let);
@@ -171,7 +172,7 @@ public class GameUIView : MonoBehaviour
     /// </summary>
     public void SetTimerText(float time)
     {
-        timeText.text = $"じかん:{time.ToString()}";
+        timeText.text = $"じかん:{time:F2}";
     }
 
     /// <summary>
@@ -235,7 +236,7 @@ public class GameUIView : MonoBehaviour
         {
             rt = gameClearPanel.GetComponent<RectTransform>();
             gameClearPanel.SetActive(true);
-            timeResultText.text = $"じかん:{GameData.Timer.Value}";
+            timeResultText.text = $"じかん:{GameData.Timer.Value:F2}";
         }
         else
         {

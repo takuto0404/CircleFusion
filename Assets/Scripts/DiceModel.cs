@@ -27,7 +27,6 @@ public static class DiceModel
         var shuffleTasks = Enumerable.Range(0,GameInitialData.Instance.numberOfDice).Select(i => _dices[i].ShuffleAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
         shuffleTasks.Add(_answerDice.ShuffleAsync((1 + GameInitialData.Instance.numberOfDice) * GameInitialData.Instance.shuffleLength,gameCt));
         await UniTask.WhenAll(shuffleTasks);
-        while()
     }
 
     public static Dice GetLastDice()

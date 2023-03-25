@@ -68,7 +68,7 @@ public static class GameStateManager
         while (!gameCt.IsCancellationRequested)
         {
             var diff = DateTime.Now - startTime;
-            GameData.Timer.Value = diff.Seconds + diff.Milliseconds * 0.001f;
+            GameData.Timer.Value = (float)diff.TotalSeconds;
             await UniTask.DelayFrame(1, cancellationToken: gameCt);
         }
     }

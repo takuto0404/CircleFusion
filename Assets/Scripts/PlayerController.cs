@@ -44,7 +44,7 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
 
                     var one = hoveredOne;
                     using (this.UpdateAsObservable().Subscribe(_ =>
-                               gameUIView.DrawLine(AlignPosition(one.initialPosition), MouseInputProvider.Instance.MousePosition)))
+                               gameUIView.DrawLine(AlignPosition(one.initialPosition), MouseInputProvider.Instance.mousePosition)))
                     {
                         Debug.Log(one.initialPosition);
                         await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);

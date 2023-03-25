@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
+using UnityEngine.InputSystem.LowLevel;
 
 
 public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
@@ -11,40 +12,38 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     [SerializeField] private InputAction releaseAction;
     private bool _isMouseGettingDown = false;
 
-    [RuntimeInitializeOnLoadMethod]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+    private static void Initialize()
+    {
+        Instance.Init();
+    }
+    
     private void Init()
     {
         pressAction.Enable();
         releaseAction.Enable();
 
-        pressAction.started += x => OnPress();
-        releaseAction.performed += x => OnRelease();
+        pressAction.performed += OnPress;
+        releaseAction.performed += OnRelease;
     }
     
 
-    private void OnPress()
+    public void OnPress(InputAction.CallbackContext context)
     {
-        _isMouseGettingDown = true;
+        Debug.Log("VAR");
+        if(context.performed)_isMouseGettingDown = true;
     }
 
-    private void OnRelease()
+    public void OnRelease(InputAction.CallbackContext context)
     {
-        _isMouseGettingDown = false;
+        if(context.performed)_isMouseGettingDown = false;
     }
 
-    public Vector2 MousePosition => GetMousePosition();
+    public Vector2 mousePosition;
 
-    private Vector2 GetMousePosition()
+    public void GetMousePosition(InputAction.CallbackContext context)
     {
-        if (Application.isEditor)
-        {
-            return Mouse.current.position.ReadValue();
-        }
-        else
-        {
-            TouchControl touchControl = Touchscreen.current.touches[0];
-            return touchControl.position.ReadValue();
-        }
+        mousePosition =  context.ReadValue<Vector2>();
     }
 
     /// <summary>
