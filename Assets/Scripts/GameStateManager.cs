@@ -21,55 +21,41 @@ public static class GameStateManager
     {
         while (true)
         {
-            DiceModel.PuzzleInit();
             GameUIPresenter.Instance.PuzzleInit();
+            DiceModel.PuzzleInit();
             JamaicaHistory.PuzzleInit();
             var gameCts = new CancellationTokenSource();
             CountTimerAsync(gameCts.Token).Forget();
 
+            var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
 
             await DiceModel.ShuffleDicesAsync(gameCts.Token);
-        
+
             JamaicaHistory.SetInitHist(DiceModel.GetDices());
-
-            var isFinished = false;
-            var isCleared = true;
-            while (!isFinished)
-            {
-                var retireTask = GameUIPresenter.Instance.RetireAsync(gameCts.Token);
-                var gameTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
-                var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
-                var result = await UniTask.WhenAny(retireTask, gameTask,uiTask);
-                if (result == 0 || result == 2)
-                {
-                    isCleared = false;
-                    break;
-                }
-
-                JamaicaHistory.SetHist(DiceModel.GetDices(),GameUIPresenter.Instance.MakeFormulaText(DiceModel.GetThisTimeFormula()));
-                GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().FormulaText);
-                if (DiceModel.AnswerCheck())
-                {
-                    isFinished = true;
-                }
-            }
-            gameCts.Cancel();
-
+            
+            var retireTask = GameUIPresenter.Instance.RetireAsync(gameCts.Token);
+            var gameTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
+            var clearTask = UniTask.WaitUntil(DiceModel.AnswerCheck, cancellationToken: gameCts.Token);
+            var result = await UniTask.WhenAny(retireTask, gameTask, uiTask, clearTask);
+            if (result == 2) continue;
             var menuCts = new CancellationTokenSource();
-            if (isCleared)
+            if (result == 0)
+            {
+                GameData.Lose();
+                await GameOveredAsync(menuCts.Token);
+            }
+
+            if (result == 3)
             {
                 await GameUIPresenter.Instance.MoveToEqualAsync(gameCts.Token);
                 GameData.Win();
                 await GameClearedAsync(menuCts.Token);
             }
-            else
-            {
-                GameData.Lose();
-                await GameOveredAsync(menuCts.Token);
-            }
+
+            gameCts.Cancel();
         }
     }
-    
+
 
     /// <summary>
     /// パズルソルブ中にタイマーのカウントを行う非同期メソッド

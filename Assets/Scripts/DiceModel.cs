@@ -24,9 +24,10 @@ public static class DiceModel
     /// <param name="gameCt"></param>
     public static async UniTask ShuffleDicesAsync(CancellationToken gameCt)
     {
-        var shuffleTasks = Enumerable.Range(0,5).Select(i => _dices[i].ShuffleAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
-        shuffleTasks.Add(_answerDice.ShuffleAsync(_dices.Count * GameInitialData.Instance.shuffleLength,gameCt));
+        var shuffleTasks = Enumerable.Range(0,GameInitialData.Instance.numberOfDice).Select(i => _dices[i].ShuffleAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
+        shuffleTasks.Add(_answerDice.ShuffleAsync((1 + GameInitialData.Instance.numberOfDice) * GameInitialData.Instance.shuffleLength,gameCt));
         await UniTask.WhenAll(shuffleTasks);
+        while()
     }
 
     public static Dice GetLastDice()

@@ -6,6 +6,7 @@ using UniRx;
 using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System.Linq;
+using UnityEngine.UIElements;
 
 public class PlayerController : SingletonMonoBehaviour<PlayerController>
 {
@@ -21,41 +22,53 @@ public class PlayerController : SingletonMonoBehaviour<PlayerController>
     /// <param name="gameCt"></param>
     public async UniTask PlayerBehavior(CancellationToken gameCt)
     {
-        NumberBox hoveredOne = null;
-        NumberBox hoveredAnotherOne = null;
-        var operatorResult = OperatorMark.Return;
-
-        while (operatorResult == OperatorMark.Return)
+        while (true)
         {
-            hoveredAnotherOne = null;
-            while (hoveredAnotherOne == null)
+            NumberBox hoveredOne = null;
+            NumberBox hoveredAnotherOne = null;
+            var operatorResult = OperatorMark.Return;
+            
+            
+            while (operatorResult == OperatorMark.Return)
             {
-                gameUIView.ClearLine();
-                hoveredOne = null;
-                while (hoveredOne == null)
+                hoveredAnotherOne = null;
+                while (hoveredAnotherOne == null)
                 {
-                    await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
-                    hoveredOne = GetHoveredNumberBox();
-                }
+                    gameUIView.ClearLine();
+                    hoveredOne = null;
+                    while (hoveredOne == null)
+                    {
+                        await MouseInputProvider.Instance.OnHoldDownAsync(gameCt);
+                        hoveredOne = GetHoveredNumberBox();
+                    }
 
-                var one = hoveredOne;
-                using (this.UpdateAsObservable().Subscribe(_ =>
-                           gameUIView.DrawLine(one.transform.position, MouseInputProvider.Instance.MousePosition)))
-                {
-                    await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
-                    hoveredAnotherOne = GetHoveredNumberBox();
-                }
+                    var one = hoveredOne;
+                    using (this.UpdateAsObservable().Subscribe(_ =>
+                               gameUIView.DrawLine(AlignPosition(one.initialPosition), MouseInputProvider.Instance.MousePosition)))
+                    {
+                        Debug.Log(one.initialPosition);
+                        await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
+                        hoveredAnotherOne = GetHoveredNumberBox();
+                    }
                 
-            }
+                }
 
-            gameUIView.DrawLine(hoveredOne.transform.position, hoveredAnotherOne.transform.position);
-            var canCalculate =
-                GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
-            var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
-            gameUIView.ClearLine();
-            operatorResult = result;
+                gameUIView.DrawLine(AlignPosition(hoveredOne.initialPosition), AlignPosition(hoveredAnotherOne.initialPosition));
+                var canCalculate =
+                    GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
+                var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
+                gameUIView.ClearLine();
+                operatorResult = result;
+            }
+            GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,operatorResult);
+            JamaicaHistory.SetHist(DiceModel.GetDices(),GameUIPresenter.Instance.MakeFormulaText(DiceModel.GetThisTimeFormula()));
+            GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().FormulaText);
         }
-        GameUIPresenter.Instance.Calculation(hoveredOne,hoveredAnotherOne,operatorResult);
+    }
+
+    private Vector2 AlignPosition(Vector2 position)
+    {
+        return new Vector2(position.x + 960, position.y + 540);
     }
 
     /// <summary>

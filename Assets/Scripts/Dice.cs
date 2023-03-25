@@ -64,6 +64,7 @@ public class Dice
                 await UniTask.Delay(TimeSpan.FromSeconds(0.02f),cancellationToken : gameCt);
             }
 
+            IsFinishedShuffle.Value = true;
             return;
         }
         var randomNum = 0;

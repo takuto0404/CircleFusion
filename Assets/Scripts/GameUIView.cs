@@ -3,13 +3,17 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UniRx;
+using UniRx.Triggers;
+using Unity.Mathematics;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 using Random = System.Random;
+using Slider = UnityEngine.UI.Slider;
 
 public class GameUIView : MonoBehaviour
 {
@@ -93,6 +97,11 @@ public class GameUIView : MonoBehaviour
     [SerializeField] private Slider diceAmountSlider;
     [SerializeField] private Button settingBackButton;
     [SerializeField] private Button settingRestartButton;
+
+    [SerializeField] private GameObject numberBoxPrefab;
+    [SerializeField] private Transform canvasT;
+    [SerializeField] private TMP_Text diceMaxValueText;
+    [SerializeField] private TMP_Text diceAmountValueText;
     
     /// <summary>
     /// 右上の式のテキストを更新する
@@ -116,6 +125,33 @@ public class GameUIView : MonoBehaviour
     }
     public void PuzzleInit()
     {
+        if (numberBoxes.Count != GameInitialData.Instance.numberOfDice)
+        { 
+            var numberOfDice = GameInitialData.Instance.numberOfDice;
+            numberBoxes.ForEach(x => Destroy(x.gameObject));
+            numberBoxes.Clear();
+            for (int i = 0; i < numberOfDice;i++)
+            {
+                var let = 310;
+                var theta = (360 / numberOfDice) * i;
+                Vector2 pos = new Vector2(Mathf.Sin(theta * Mathf.Deg2Rad) * let, Mathf.Cos(theta * Mathf.Deg2Rad) * let);
+                if (i > numberOfDice / 2)
+                {
+                    theta = 360 - theta;
+                    pos = new Vector2(-(Mathf.Sin(theta * Mathf.Deg2Rad) * let), Mathf.Cos(theta * Mathf.Deg2Rad) * let);
+                }
+                
+                var scale = 1 - (numberOfDice - 5) * 0.03f;
+                var box = Instantiate(numberBoxPrefab,canvasT);
+                box.transform.SetAsFirstSibling();
+                answerBox.transform.SetAsFirstSibling();
+                var rt = box.GetComponent<RectTransform>();
+                rt.localScale = new Vector2(scale, scale);
+                var numberBox = box.GetComponent<NumberBox>();
+                numberBox.initialPosition = pos;
+                numberBoxes.Add(numberBox);
+            }
+        }
         numberBoxes.ForEach(box => box.ShowBox());
         gameClearPanel.SetActive(false);
         gameOverPanel.SetActive(false);
@@ -206,8 +242,8 @@ public class GameUIView : MonoBehaviour
             rt = gameOverPanel.GetComponent<RectTransform>();
             gameOverPanel.SetActive(true);
         }
-        rt.position = new Vector2(Screen.width / 2, Screen.height * 1.5f);
-        await rt.DOMove(new Vector2(Screen.width / 2, Screen.height / 2), 0.8f).ToUniTask(cancellationToken:gameCt);
+        rt.localPosition = new Vector2(0, Screen.height);
+        await rt.DOMove(Vector2.zero, 0.8f).ToUniTask(cancellationToken:gameCt);
 
         if (wasGameCleared)
         {
@@ -244,13 +280,28 @@ public class GameUIView : MonoBehaviour
         return settingButton.OnClickAsObservable();
     }
 
-    public async UniTask SettingProgress(CancellationToken gameCt)
+    public async UniTask<bool> SettingProgress(CancellationToken gameCt)
     {
-        settingPanel.SetActive(true);
-        var task1 = settingBackButton.OnClickAsync(gameCt);
-        var task2 = settingRestartButton.OnClickAsync(gameCt);
-        await UniTask.WhenAny(task1, task2);
-        settingPanel.SetActive(false);
+        using (diceAmountSlider.OnValueChangedAsObservable()
+                   .Subscribe(value => diceAmountValueText.text = value.ToString()))
+        {
+            using (diceMaxSlider.OnValueChangedAsObservable()
+                       .Subscribe(value => diceMaxValueText.text = value.ToString()))
+            {
+                settingPanel.SetActive(true);
+                var task1 = settingBackButton.OnClickAsync(gameCt);
+                var task2 = settingRestartButton.OnClickAsync(gameCt);
+                var result  = await UniTask.WhenAny(task1, task2);
+                if (result == 1)
+                {
+                    GameInitialData.Instance.diceMaxValue = (int)diceMaxSlider.value;
+                    GameInitialData.Instance.numberOfDice = (int)diceAmountSlider.value;
+                }
+                settingPanel.SetActive(false);
+                return result == 1;
+            }
+        }
+        
     }
 
     public async UniTask MoveToEqualAsync(NumberBox numberBox,CancellationToken gameCt)

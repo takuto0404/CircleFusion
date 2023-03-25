@@ -11,19 +11,8 @@ public class UGUILineRenderer : Graphic
     {
         this.rectTransform.localPosition = Vector3.zero;
         var processedPosition =
-            newPositions.Select(position => new Vector2(position.x - 960, position.y - 540)).ToArray();
+            newPositions.Select(position => new Vector2(position.x - Screen.width / 2, position.y - Screen.height / 2)).ToArray();
         positions = processedPosition;
-        SetVerticesDirty();
-    }
-
-    public void SetColor(Color lineColor)
-    {
-        this.color = lineColor;
-    }
-
-    public void ClearLine()
-    {
-        positions = new Vector2[] { new Vector2(0, 0), new Vector2(0, 0) };
         SetVerticesDirty();
     }
 

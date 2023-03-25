@@ -7,50 +7,33 @@ using UnityEngine.InputSystem.Controls;
 
 public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
 {
-    /// <summary>
-    /// 
-    /// </summary>
-    public Vector2 MousePosition => GetMousePosition();
+    [SerializeField] private InputAction pressAction;
+    [SerializeField] private InputAction releaseAction;
+    private bool _isMouseGettingDown = false;
 
-    /// <summary>
-    /// マウスが押される/タップされるまで待つ
-    /// </summary>
-    /// <param name="gameCt"></param>
-    public async UniTask OnHoldDownAsync(CancellationToken gameCt)
+    [RuntimeInitializeOnLoadMethod]
+    private void Init()
     {
-        await UniTask.WaitUntil(IsMouseGettingDown,cancellationToken:gameCt);
+        pressAction.Enable();
+        releaseAction.Enable();
+
+        pressAction.started += x => OnPress();
+        releaseAction.performed += x => OnRelease();
     }
     
-    /// <summary>
-    /// マウスが離される/タップが終わるまで待つ
-    /// </summary>
-    /// <param name="gameCt"></param>
-    public async UniTask OnHoldUpAsync(CancellationToken gameCt)
+
+    private void OnPress()
     {
-        await UniTask.WaitWhile(IsMouseGettingDown, cancellationToken: gameCt);
+        _isMouseGettingDown = true;
     }
 
-    /// <summary>
-    /// マウスが押されているか/タップされているかどうかを返す
-    /// </summary>
-    /// <returns>タップされていたらtrue,そうでなければfalse</returns>
-    private bool IsMouseGettingDown()
+    private void OnRelease()
     {
-        if (Application.isEditor)
-        {
-            return Mouse.current.leftButton.isPressed;
-        }
-        else
-        {
-            TouchControl touchControl = Touchscreen.current.touches[0];
-            return touchControl.IsPressed();
-        }
+        _isMouseGettingDown = false;
     }
 
-    /// <summary>
-    /// マウス/タップの位置を調べる
-    /// </summary>
-    /// <returns>マウス/タップの位置</returns>
+    public Vector2 MousePosition => GetMousePosition();
+
     private Vector2 GetMousePosition()
     {
         if (Application.isEditor)
@@ -62,5 +45,23 @@ public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
             TouchControl touchControl = Touchscreen.current.touches[0];
             return touchControl.position.ReadValue();
         }
+    }
+
+    /// <summary>
+    /// マウスが押される/タップされるまで待つ
+    /// </summary>
+    /// <param name="gameCt"></param>
+    public async UniTask OnHoldDownAsync(CancellationToken gameCt)
+    {
+        await UniTask.WaitUntil(() => _isMouseGettingDown, cancellationToken: gameCt);
+    }
+
+    /// <summary>
+    /// マウスが離される/タップが終わるまで待つ
+    /// </summary>
+    /// <param name="gameCt"></param>
+    public async UniTask OnHoldUpAsync(CancellationToken gameCt)
+    {
+        await UniTask.WaitWhile(() => _isMouseGettingDown, cancellationToken: gameCt);
     }
 }
