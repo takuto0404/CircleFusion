@@ -5,15 +5,6 @@ using UniRx;
 
 public class Dice
 {
-    public Dice()
-    {
-        
-    }
-    public Dice(DiceInfoClass diceInfo)
-    {
-        Number.Value = diceInfo.DiceInfo.diceNumber;
-        IsActive = diceInfo.DiceInfo.isActive;
-    }
     /// <summary>
     /// サイコロの数字の実体
     /// </summary>
@@ -43,6 +34,7 @@ public class Dice
     /// <param name="gameCt"></param>
     public async UniTask ShuffleAsync(float shuffleLength,CancellationToken gameCt)
     {
+        Number.Value = 0;
         if (IsAnswerBox)
         {
             (int number1, int number2) randomAnswer = (0, 0);

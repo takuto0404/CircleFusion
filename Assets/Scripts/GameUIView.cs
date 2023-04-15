@@ -4,24 +4,22 @@ using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using DG.Tweening;
 using UniRx;
-using UniRx.Triggers;
-using Unity.Mathematics;
-using UnityEngine.UIElements;
-using Button = UnityEngine.UI.Button;
-using Random = System.Random;
-using Slider = UnityEngine.UI.Slider;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameUIView : MonoBehaviour
 {
     [SerializeField] private Button backStepButton;
+
+    [SerializeField] private TMP_Text solutionText;
     /// <summary>
     /// 答え(計算目標)となる箱
     /// </summary>
     [SerializeField] public NumberBox answerBox;
+
+    [SerializeField] private GameObject titlePanel;
     
     /// <summary>
     /// 式に利用できるサイコロの箱
@@ -47,6 +45,8 @@ public class GameUIView : MonoBehaviour
     /// 右上の方に出てくる式の履歴のテキスト
     /// </summary>
     [SerializeField] private TMP_Text formulaText;
+
+    [SerializeField] private GameObject noticePanel;
     
     /// <summary>
     /// 左上に出てくるスコア表示用テキスト
@@ -125,6 +125,7 @@ public class GameUIView : MonoBehaviour
     }
     public void PuzzleInit()
     {
+        titlePanel.SetActive(false);
         if (numberBoxes.Count != GameInitialData.Instance.numberOfDice)
         { 
             var numberOfDice = GameInitialData.Instance.numberOfDice;
@@ -165,6 +166,13 @@ public class GameUIView : MonoBehaviour
     public void ClearLine()
     {
         drawLine.SetPositions(new[]{Vector2.zero,Vector2.zero});
+    }
+
+    public async UniTask ShowNotice()
+    {
+        noticePanel.SetActive(true);
+        await UniTask.Delay(TimeSpan.FromSeconds(1f));
+        noticePanel.SetActive(false);
     }
 
     /// <summary>
@@ -242,6 +250,18 @@ public class GameUIView : MonoBehaviour
         {
             rt = gameOverPanel.GetComponent<RectTransform>();
             gameOverPanel.SetActive(true);
+            solutionText.text = "Solutions:\n";
+            var subscribed = new List<int>();
+            for (int i = 0; i < 3 && i < GameData.Solutions.Count; i++)
+            {
+                var randomNum = Random.Range(0, GameData.Solutions.Count);
+                while (subscribed.Contains(randomNum))
+                {
+                    randomNum = Random.Range(0, GameData.Solutions.Count);
+                }
+                solutionText.text += $"{GameData.Solutions[randomNum]}\n";
+                subscribed.Add(randomNum);
+            }
         }
         rt.localPosition = new Vector2(0, Screen.height);
         await rt.DOMove(Vector2.zero, 0.8f).ToUniTask(cancellationToken:gameCt);

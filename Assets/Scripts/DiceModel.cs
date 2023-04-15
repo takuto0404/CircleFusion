@@ -29,6 +29,16 @@ public static class DiceModel
         await UniTask.WhenAll(shuffleTasks);
     }
 
+    public static int[] GetDiceNumbers()
+    {
+        return _dices.Where(dice => !dice.IsAnswerBox).Select(dice => dice.Number.Value).ToArray();
+    }
+
+    public static int GetAnswerNumber()
+    {
+        return _answerDice.Number.Value;
+    }
+
     public static Dice GetLastDice()
     {
         return _dices.First(dice => dice.IsActive);

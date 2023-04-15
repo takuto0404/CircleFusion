@@ -133,6 +133,10 @@ public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
         disposable.ForEach(item => item.Dispose());
     }
 
+    public async UniTask ShowNotice()
+    {
+        await gameUIView.ShowNotice();
+    }
     public void SetFormulaText(string formulaText)
     {
         gameUIView.SetFormulaText(formulaText);

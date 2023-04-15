@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -26,10 +27,21 @@ public static class GameStateManager
             JamaicaHistory.PuzzleInit();
             var gameCts = new CancellationTokenSource();
             CountTimerAsync(gameCts.Token).Forget();
-
+            
             var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
 
-            await DiceModel.ShuffleDicesAsync(gameCts.Token);
+            (bool canSolve, List<string> solutions) solveResult = (false,null);
+            var i = 0;
+            while (!solveResult.canSolve)
+            {
+                if(i != 0)await GameUIPresenter.Instance.ShowNotice();
+                await DiceModel.ShuffleDicesAsync(gameCts.Token);
+                solveResult = JamaicaSolver.SolveJamaica(DiceModel.GetAnswerNumber(), DiceModel.GetDiceNumbers());
+                i++;
+            }
+
+            Debug.Log("Solution変更");
+            GameData.Solutions = solveResult.solutions;
 
             JamaicaHistory.SetInitHist(DiceModel.GetDices());
             

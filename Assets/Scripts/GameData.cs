@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UniRx;
 
 /// <summary>
@@ -19,6 +20,8 @@ public static class GameData
     /// 連続正解数
     /// </summary>
     public static int Combo = 0;
+
+    public static List<string> Solutions;
 
     public static void Win()
     {
