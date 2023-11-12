@@ -58,9 +58,5 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
-Assets/nikkyou-sans-font/info.txt
-Assets/nikkyou-sans-font/info.txt.meta
-Assets/nikkyou-sans-font/NikkyouSans-mLKax_SDF.asset
-Assets/nikkyou-sans-font/NikkyouSans-mLKax_SDF.asset.meta
-Assets/nikkyou-sans-font/NikkyouSans-mLKax.ttf
-Assets/nikkyou-sans-font/NikkyouSans-mLKax.ttf.meta
+Assets/Font
+Assets/Font.meta

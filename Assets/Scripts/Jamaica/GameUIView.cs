@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -98,7 +99,6 @@ namespace Jamaica
         [SerializeField] private Slider diceMaxSlider;
         [SerializeField] private Slider diceAmountSlider;
         [SerializeField] private Button settingBackButton;
-        [SerializeField] private Button settingRestartButton;
 
         [SerializeField] private GameObject numberBoxPrefab;
         [SerializeField] private Transform canvasT;
@@ -125,11 +125,16 @@ namespace Jamaica
         {
             return formulaText.text;
         }
+
+        public void HideEverything()
+        {
+            ClearLine();
+            HideOperators();
+        }
         public void PuzzleInit()
         {
             titlePanel.SetActive(false);
-            ClearLine();
-            HideOperators();
+            HideEverything();
             if (numberBoxes.Count != GameInitialData.Instance.numberOfDice)
             {
                 diceAmountSlider.value = GameInitialData.Instance.numberOfDice;
@@ -306,29 +311,23 @@ namespace Jamaica
             return settingButton.OnClickAsObservable();
         }
 
-        public async UniTask<bool> SettingProgress(CancellationToken gameCt)
+        public async UniTask SettingProgress(CancellationToken gameCt)
         {
             using (diceAmountSlider.OnValueChangedAsObservable()
-                       .Subscribe(value => diceAmountValueText.text = value.ToString()))
+                       .Subscribe(value => diceAmountValueText.text = value.ToString(CultureInfo.InvariantCulture)))
             {
                 using (diceMaxSlider.OnValueChangedAsObservable()
-                           .Subscribe(value => diceMaxValueText.text = value.ToString()))
+                           .Subscribe(value => diceMaxValueText.text = value.ToString(CultureInfo.InvariantCulture)))
                 {
                     settingPanel.SetActive(true);
-                    var task1 = settingBackButton.OnClickAsync(gameCt);
-                    var task2 = settingRestartButton.OnClickAsync(gameCt);
-                    var result  = await UniTask.WhenAny(task1, task2);
-                    if (result == 1)
-                    {
-                        GameInitialData.Instance.diceMaxValue = (int)diceMaxSlider.value;
-                        GameInitialData.Instance.numberOfDice = (int)diceAmountSlider.value;
-                    }
+                    
+                    await settingBackButton.OnClickAsync(gameCt);
+                    GameInitialData.Instance.diceMaxValue = (int)diceMaxSlider.value;
+                    GameInitialData.Instance.numberOfDice = (int)diceAmountSlider.value;
                     settingPanel.SetActive(false);
                     await PlayerDataManager.SavePlayerDataAsync(
                         new PlayerData(GameData.Score, GameData.Combo, GameInitialData.Instance.numberOfDice,
                             GameInitialData.Instance.diceMaxValue), gameCt);
-                    
-                    return result == 1;
                 }
             }
         

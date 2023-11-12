@@ -96,8 +96,6 @@ namespace Jamaica
         /// <param name="gameCt"></param>
         public async UniTask PuzzleBehaviorAsync(CancellationToken gameCt)
         {
-            bool isGameRestart = false;
-
             var disposable = _diceAndNumberBoxPairDic
                 .Select(keyValue => keyValue.Key.Number.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
             disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
@@ -105,6 +103,7 @@ namespace Jamaica
             {
                 var step = JamaicaHistory.BackHist();
                 if (step == null) return;
+                gameUIView.HideEverything();
                 DiceModel.BackStep(step);
                 SetFormulaText(step.FormulaText);
                 _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
@@ -113,24 +112,23 @@ namespace Jamaica
                 });
             }));
             disposable.Add(gameUIView.SettingButtonOnClickAsObservable()
-                .Subscribe(async _ =>
-                {
-                    var result = await gameUIView.SettingProgress(gameCt);
-                    isGameRestart = result;
-                }));
+                .Subscribe(async _ => await gameUIView.SettingProgress(gameCt)));
 
             var diceList = _diceAndNumberBoxPairDic.Keys.ToList();
-            var disposeList = diceList.Select(dice => dice.MergedDice.Where(_ => !dice.IsActive).Subscribe(async merged =>
-                {
-                    await _diceAndNumberBoxPairDic[dice]
-                        .HideBoxAsync(_diceAndNumberBoxPairDic[merged].GetComponent<RectTransform>().position, gameCt);
-                }))
-                .ToList();
-            disposeList.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue =>
+            
+            disposable.AddRange(diceList.Select(dice => dice.MergedDice.Where(_ => !dice.IsActive).Subscribe(
+                    async merged =>
+                    {
+                        await _diceAndNumberBoxPairDic[dice]
+                            .HideBoxAsync(_diceAndNumberBoxPairDic[merged].GetComponent<RectTransform>().position,
+                                gameCt);
+                    }))
+                .ToList());
+            disposable.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue =>
                 keyValue.Key.IsFinishedShuffle.Subscribe(async _ =>
                     await keyValue.Value.FinishedShuffleAnimationAsync(gameCt))).ToList());
 
-            await UniTask.WhenAny(UniTask.WaitUntilCanceled(gameCt),  UniTask.WaitUntil(() => isGameRestart, cancellationToken: gameCt));
+            await UniTask.WaitUntilCanceled(gameCt);
             disposable.ForEach(item => item.Dispose());
         }
 
@@ -138,6 +136,7 @@ namespace Jamaica
         {
             await gameUIView.ShowNotice();
         }
+
         public void SetFormulaText(string formulaText)
         {
             gameUIView.SetFormulaText(formulaText);

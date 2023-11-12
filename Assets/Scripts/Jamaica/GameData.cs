@@ -28,7 +28,7 @@ namespace Jamaica
         public static void Win()
         {
             Combo++;
-            Score += Combo;
+            Score += Combo * (GameInitialData.Instance.numberOfDice + GameInitialData.Instance.diceMaxValue);
         }
 
         public static void Lose()

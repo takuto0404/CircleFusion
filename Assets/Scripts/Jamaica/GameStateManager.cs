@@ -27,7 +27,8 @@ namespace Jamaica
                 var gameCts = new CancellationTokenSource();
                 await PlayerDataManager.LoadPlayerDataAsync(gameCts.Token);
                 var data = PlayerDataManager.PlayerData;
-
+                
+                GameData.Timer.Value = 0;
                 GameData.Score = data.Score;
                 GameData.Combo = data.Combo;
                 GameInitialData.Instance.numberOfDice = data.NumberOfDice;
@@ -36,8 +37,7 @@ namespace Jamaica
                 GameUIPresenter.Instance.PuzzleInit();
                 DiceModel.PuzzleInit();
                 JamaicaHistory.PuzzleInit();
-                CountTimerAsync(gameCts.Token).Forget();
-            
+
                 var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
 
                 (bool canSolve, List<string> solutions) solveResult = (false,null);
@@ -49,6 +49,7 @@ namespace Jamaica
                     solveResult = JamaicaSolver.SolveJamaica(DiceModel.GetAnswerNumber(), DiceModel.GetDiceNumbers());
                     i++;
                 }
+                CountTimerAsync(gameCts.Token).Forget();
                 
                 GameData.Solutions = solveResult.solutions;
 
