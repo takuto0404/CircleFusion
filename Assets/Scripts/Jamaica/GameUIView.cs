@@ -15,100 +15,34 @@ namespace Jamaica
     public class GameUIView : MonoBehaviour
     {
         [SerializeField] private Button backStepButton;
-
         [SerializeField] private TMP_Text solutionText;
-        /// <summary>
-        /// 答え(計算目標)となる箱
-        /// </summary>
         [SerializeField] public NumberBox answerBox;
-
         [SerializeField] private GameObject titlePanel;
-    
-        /// <summary>
-        /// 式に利用できるサイコロの箱
-        /// </summary>
         [SerializeField] public List<NumberBox> numberBoxes;
-    
-        /// <summary>
-        /// リタイアするときに押すボタン
-        /// </summary>
         [SerializeField] private Button retireButton;
-    
-        /// <summary>
-        /// 連続で何回正解したかを示すUIのバックの図形
-        /// </summary>
         [SerializeField] private GameObject comboImage;
-    
-        /// <summary>
-        /// ゲーム終了時のリスタートボタン
-        /// </summary>
         [SerializeField] private Button restartButton;
-    
-        /// <summary>
-        /// 右上の方に出てくる式の履歴のテキスト
-        /// </summary>
         [SerializeField] private TMP_Text formulaText;
-
         [SerializeField] private GameObject noticePanel;
-    
-        /// <summary>
-        /// 左上に出てくるスコア表示用テキスト
-        /// </summary>
         [SerializeField] private TMP_Text scoreText;
-    
-        /// <summary>
-        /// 左上に出てくるタイム表示用テキスト
-        /// </summary>
         [SerializeField] private TMP_Text timeText;
-    
-        /// <summary>
-        /// ゲームクリア時に上から出てくるパネル
-        /// </summary>
         [SerializeField] private GameObject gameClearPanel;
-    
-        /// <summary>
-        /// ゲームオーバー時に上から出てくるパネル
-        /// </summary>
         [SerializeField] private GameObject gameOverPanel;
-    
-        /// <summary>
-        /// ゲーム終了時の画面に出てくるスコア結果のテキスト
-        /// </summary>
         [SerializeField] private TMP_Text scoreResultText;
-    
-        /// <summary>
-        /// ゲーム終了時の画面に出てくるタイム結果のテキスト
-        /// </summary>
         [SerializeField] private TMP_Text timeResultText;
-    
-        /// <summary>
-        /// ゲーム終了時の画面に出てくるコンボ結果のテキスト
-        /// </summary>
         [SerializeField] private TMP_Text comboResultText;
-
         [SerializeField] private List<Button> operatorButtons;
-    
-        /// <summary>
-        /// Canvas上で線を引いてくれるクラス
-        /// </summary>
         [SerializeField] private UGUILineRenderer drawLine;
-
         [SerializeField] private Button settingButton;
-
         [SerializeField] private GameObject settingPanel;
         [SerializeField] private Slider diceMaxSlider;
         [SerializeField] private Slider diceAmountSlider;
         [SerializeField] private Button settingBackButton;
-
         [SerializeField] private GameObject numberBoxPrefab;
         [SerializeField] private Transform canvasT;
         [SerializeField] private TMP_Text diceMaxValueText;
         [SerializeField] private TMP_Text diceAmountValueText;
-    
-        /// <summary>
-        /// 右上の式のテキストを更新する
-        /// </summary>
-        /// <param name="formulaText">式の履歴リスト</param>
+
         public void SetFormulaText(string formulaText)
         {
             this.formulaText.text = formulaText;
