@@ -1,8 +1,11 @@
 using UnityEngine;
 
-public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
+namespace Jamaica
 {
-    [SerializeField] public int shuffleLength;
-    [SerializeField] public int diceMaxValue;
-    [SerializeField] public int numberOfDice;
+    public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
+    {
+        [SerializeField] public int shuffleLength;
+        [SerializeField] public int diceMaxValue;
+        [SerializeField] public int numberOfDice;
+    }
 }

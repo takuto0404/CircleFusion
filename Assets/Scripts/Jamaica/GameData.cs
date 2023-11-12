@@ -1,36 +1,39 @@
 using System.Collections.Generic;
 using UniRx;
 
-/// <summary>
-/// いろいろなところからアクセスしたいゲームのデータを入れるstaticクラス
-/// </summary>
-public static class GameData
+namespace Jamaica
 {
     /// <summary>
-    /// ゲーム中のタイマーの数値
+    /// いろいろなところからアクセスしたいゲームのデータを入れるstaticクラス
     /// </summary>
-    public static readonly ReactiveProperty<float> Timer = new();
-
-    /// <summary>
-    /// ゲーム中のスコア
-    /// </summary>
-    public static int Score = 0;
-
-    /// <summary>
-    /// 連続正解数
-    /// </summary>
-    public static int Combo = 0;
-
-    public static List<string> Solutions;
-
-    public static void Win()
+    public static class GameData
     {
-        Combo++;
-        Score += Combo;
-    }
+        /// <summary>
+        /// ゲーム中のタイマーの数値
+        /// </summary>
+        public static readonly ReactiveProperty<float> Timer = new();
 
-    public static void Lose()
-    {
-        Combo = 0;
+        /// <summary>
+        /// ゲーム中のスコア
+        /// </summary>
+        public static int Score = 0;
+
+        /// <summary>
+        /// 連続正解数
+        /// </summary>
+        public static int Combo = 0;
+
+        public static List<string> Solutions;
+
+        public static void Win()
+        {
+            Combo++;
+            Score += Combo;
+        }
+
+        public static void Lose()
+        {
+            Combo = 0;
+        }
     }
 }

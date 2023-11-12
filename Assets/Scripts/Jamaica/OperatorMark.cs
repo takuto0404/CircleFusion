@@ -1,4 +1,7 @@
-public enum OperatorMark
+namespace Jamaica
 {
-    Plus = 0,Minus,Times,Devided,Return
+    public enum OperatorMark
+    {
+        Plus = 0,Minus,Times,Devided,Return
+    }
 }
