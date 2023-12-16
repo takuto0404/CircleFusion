@@ -7,33 +7,19 @@ namespace Jamaica
 {
     public class Dice
     {
-        /// <summary>
-        /// サイコロの数字の実体
-        /// </summary>
         public readonly ReactiveProperty<int> Number = new();
-    
-        /// <summary>
-        /// このサイコロが答え用のサイコロかどうか
-        /// </summary>
         public bool IsAnswerBox;
-    
-        /// <summary>
-        /// このサイコロが活動状態かどうか
-        /// </summary>
         public bool IsActive = true;
-
         public readonly AsyncReactiveProperty<Dice> MergedDice = new(null);
-    
-        /// <summary>
-        /// このサイコロのシャッフルが終わったかどうか
-        /// </summary>
         public readonly AsyncReactiveProperty<bool> IsFinishedShuffle = new(false);
 
-        /// <summary>
-        /// このサイコロをシャッフルする
-        /// </summary>
-        /// <param name="shuffleLength">シャッフルする時間</param>
-        /// <param name="gameCt"></param>
+        //TODO:時間のテキストのサイズがおかしい
+        //TODO:Returnボタンが消えない
+        //TODO:初回プレイ時にスコアの変更が反映されていない
+        //TODO:タイマー止めるタイミングおかしい
+        //TODO:スコアが大きすぎる
+        //TODO:タイムが反映されるように
+        //TODO:プレイヤーの特徴を分析
         public async UniTask ShuffleAsync(float shuffleLength,CancellationToken gameCt)
         {
             Number.Value = 0;

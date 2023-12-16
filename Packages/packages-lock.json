@@ -14,6 +14,13 @@
       "dependencies": {},
       "hash": "284d5c50d3f1ddd9fa7df3d382ea904732a9c2ff"
     },
+    "com.ohagi.mermaidmaker": {
+      "version": "https://github.com/takuto0404/MermaidMaker_ohagi.git?path=src/Unity/Assets/Plugins/MermaidMaker",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a8fe674208aece72346b237f46c88338aa761e7e"
+    },
     "com.unity.2d.animation": {
       "version": "7.0.9",
       "depth": 1,
