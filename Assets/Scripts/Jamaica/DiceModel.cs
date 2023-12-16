@@ -7,33 +7,19 @@ namespace Jamaica
 {
     public static class DiceModel
     {
-        /// <summary>
-        /// 計算目標のサイコロ
-        /// </summary>
         private static Dice _answerDice;
-    
-        /// <summary>
-        /// 式に使用できるサイコロたち
-        /// </summary>
         private static List<Dice> _dices;
+        private static Formula _currentFormula;
 
-        private static Formula _thisTimeFormula;
-
-        /// <summary>
-        /// サイコロのシャッフルを行う非同期メソッド
-        /// </summary>
-        /// <param name="gameCt"></param>
-        public static async UniTask ShuffleDicesAsync(CancellationToken gameCt)
+        public static async UniTask RollDiceAsync(CancellationToken gameCt)
         {
-            var shuffleTasks = Enumerable.Range(0,GameInitialData.Instance.numberOfDice).Select(i => _dices[i].RollDiceAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
-            shuffleTasks.Add(_answerDice.RollDiceAsync((1 + GameInitialData.Instance.numberOfDice) * GameInitialData.Instance.shuffleLength,gameCt));
+            var shuffleTasks = _dices.Select((dice,i) =>
+                dice.RollDiceAsync(i + 1, gameCt)).ToList();
+            shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, gameCt));
             await UniTask.WhenAll(shuffleTasks);
         }
-        //TODO:Refactoring
-        //TODO:シャッフル中の設定変更をすると何度も振り直せてしまう
-        //TODO:先にシャッフル
 
-        public static int[] GetDiceNumbers()
+        public static int[] ExtractDiceNumbers()
         {
             return _dices.Where(dice => !dice.IsAnswerDice).Select(dice => dice.DiceNumber.Value).ToArray();
         }
@@ -47,82 +33,61 @@ namespace Jamaica
         {
             return _dices.First(dice => dice.IsActive);
         }
-
-        /// <summary>
-        /// もう残り活動状態にあるサイコロが1でそれが目標値と等しければtrue,そうでなければfalse
-        /// </summary>
-        /// <returns></returns>
-        public static bool AnswerCheck()
+        
+        public static bool IsCorrectReached()
         {
-            var activeBoxes = _dices.Where(item => item.IsActive).ToArray();
-            if (activeBoxes.Length != 1) return false;
-            var lastBoxNumber = activeBoxes.First().DiceNumber.Value;
+            var activeDices = _dices.Where(dice => dice.IsActive).ToArray();
+            if (activeDices.Length != 1) return false;
+            var lastBoxNumber = activeDices.First().DiceNumber.Value;
             return lastBoxNumber == _answerDice.DiceNumber.Value;
         }
 
-        /// <summary>
-        /// 一つ手順を戻る
-        /// </summary>
-        /// <param name="hist">復元用の履歴</param>
-        public static void BackStep(Hist hist)
+        public static void UndoStep(Hist lastHistory)
         {
             for (var i = 0; i < _dices.Count; i++)
             {
-                _dices[i].DiceNumber.Value = hist.Dices[i].DiceInfo.diceNumber;
-                _dices[i].IsActive = hist.Dices[i].DiceInfo.isActive;
+                var diceInfo = lastHistory.Dices[i].DiceInfo;
+                _dices[i].DiceNumber.Value = diceInfo.diceNumber;
+                _dices[i].IsActive = diceInfo.isActive;
             }
         }
 
-        public static List<Dice> GetDices()
+        public static List<Dice> GetAllDices()
         {
             return _dices;
         }
 
-        public static void PuzzleInit()
+        public static void InitializePuzzle()
         {
-            _thisTimeFormula = null;
+            _currentFormula = null;
         }
 
-        public static void SetDice(List<Dice> dices,Dice answerDice)
+        public static void SetDice(List<Dice> dices, Dice answerDice)
         {
-            _dices = new List<Dice>();
+            _dices = new List<Dice>(dices);
             _answerDice = answerDice;
             _answerDice.IsAnswerDice = true;
-            dices.ForEach(item => _dices.Add(item));
         }
 
-        public static Formula GetThisTimeFormula()
+        public static Formula FetchCurrentFormula()
         {
-            return _thisTimeFormula;
+            return _currentFormula;
         }
-
-        /// <summary>
-        /// 二つの選択されたサイコロと演算記号をもとに計算して、片方を非アクティブにする
-        /// </summary>
-        /// <param name="one">片方(足される、引かれる、掛けられる、割られる方)</param>
-        /// <param name="anotherOne">もう片方(足す、引く、掛ける、割る方)</param>
-        /// <param name="operatorMark">選択された演算記号</param>
-        public static void MergeDice(Dice one, Dice anotherOne,OperatorMark operatorMark)
+        
+        public static void MergeDice(Dice firstDice, Dice secondDice, OperatorMark operatorSymbol)
         {
-            var result = Calculation(one, anotherOne, operatorMark);
-            _thisTimeFormula = new Formula(one.DiceNumber.Value, anotherOne.DiceNumber.Value, operatorMark, result);
-            one.DiceNumber.Value = result;
-            anotherOne.IsActive = false;
-            anotherOne.MergedDice.Value = one;
+            var result = CalculateResult(firstDice, secondDice, operatorSymbol);
+            _currentFormula = new Formula(firstDice.DiceNumber.Value, secondDice.DiceNumber.Value, operatorSymbol, result);
+            firstDice.DiceNumber.Value = result;
+            secondDice.IsActive = false;
+            secondDice.MergedDice.Value = firstDice;
         }
-
-        /// <summary>
-        /// シンプルに受け取った二つのサイコロと演算記号をもとに計算結果を表示する
-        /// </summary>
-        /// <param name="one">片方(足される、引かれる、掛けられる、割られる方)</param>
-        /// <param name="anotherOne">もう片方(足す、引く、掛ける、割る方)</param>
-        /// <param name="operatorMark">選択された演算記号</param>
-        /// <returns></returns>
-        private static int Calculation(Dice one,Dice anotherOne,OperatorMark operatorMark)
+        
+        private static int CalculateResult(Dice firstDice, Dice secondDice, OperatorMark operatorSymbol)
         {
-            var value1 = one.DiceNumber.Value;
-            var value2 = anotherOne.DiceNumber.Value;
-            switch (operatorMark)
+            var value1 = firstDice.DiceNumber.Value;
+            var value2 = secondDice.DiceNumber.Value;
+            switch (operatorSymbol)
             {
                 case OperatorMark.Plus:
                     return value1 + value2;

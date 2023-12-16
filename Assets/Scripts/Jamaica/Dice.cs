@@ -1,6 +1,6 @@
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 
 namespace Jamaica
 {
@@ -20,8 +20,9 @@ namespace Jamaica
         //TODO:スコアが大きすぎる
         //TODO:タイムが反映されるように
         //TODO:プレイヤーの特徴を分析
-        public async UniTask RollDiceAsync(float rollTime, CancellationToken gameCt)
+        public async UniTask RollDiceAsync(int rollIndex,CancellationToken gameCt)
         {
+            var rollTime = GameInitialData.Instance.shuffleLength * rollIndex;
             DiceNumber.Value = 0;
             if (IsAnswerDice)
             {

@@ -104,7 +104,7 @@ namespace Jamaica
                 var step = JamaicaHistory.BackHist();
                 if (step == null) return;
                 gameUIView.HideEverything();
-                DiceModel.BackStep(step);
+                DiceModel.UndoStep(step);
                 SetFormulaText(step.FormulaText);
                 _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
                 {
