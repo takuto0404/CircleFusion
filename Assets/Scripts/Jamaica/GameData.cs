@@ -13,7 +13,7 @@ namespace Jamaica
         public static void GameClear()
         {
             ComboCount++;
-            Score += ComboCount * (GameInitialData.Instance.numberOfDice + GameInitialData.Instance.diceMaxValue);
+            Score += ComboCount * (GameInitialData.Instance.diceCount + GameInitialData.Instance.maxDiceFace);
         }
 
         public static void GameOver()

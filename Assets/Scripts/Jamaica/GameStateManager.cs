@@ -31,8 +31,8 @@ namespace Jamaica
                 GameData.CurrentTime.Value = 0;
                 GameData.Score = data.Score;
                 GameData.ComboCount = data.Combo;
-                GameInitialData.Instance.numberOfDice = data.NumberOfDice;
-                GameInitialData.Instance.diceMaxValue = data.DiceMaxNumber;
+                GameInitialData.Instance.diceCount = data.NumberOfDice;
+                GameInitialData.Instance.maxDiceFace = data.DiceMaxNumber;
 
                 GameUIPresenter.Instance.PuzzleInit();
                 DiceCalculator.InitializePuzzle();
@@ -84,7 +84,7 @@ namespace Jamaica
                 }
 
                 await PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameData.Score, GameData.ComboCount,
-                    GameInitialData.Instance.numberOfDice, GameInitialData.Instance.diceMaxValue),menuCts.Token);
+                    GameInitialData.Instance.diceCount, GameInitialData.Instance.maxDiceFace),menuCts.Token);
                 menuCts.Cancel();
             }
         }

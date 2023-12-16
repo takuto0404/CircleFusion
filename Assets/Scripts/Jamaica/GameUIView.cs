@@ -69,12 +69,12 @@ namespace Jamaica
         {
             titlePanel.SetActive(false);
             HideEverything();
-            if (numberBoxes.Count != GameInitialData.Instance.numberOfDice)
+            if (numberBoxes.Count != GameInitialData.Instance.diceCount)
             {
-                diceAmountSlider.value = GameInitialData.Instance.numberOfDice;
-                diceMaxSlider.value = GameInitialData.Instance.diceMaxValue;
+                diceAmountSlider.value = GameInitialData.Instance.diceCount;
+                diceMaxSlider.value = GameInitialData.Instance.maxDiceFace;
 
-                var numberOfDice = GameInitialData.Instance.numberOfDice;
+                var numberOfDice = GameInitialData.Instance.diceCount;
                 numberBoxes.ForEach(x => Destroy(x.gameObject));
                 numberBoxes.Clear();
                 for (int i = 0; i < numberOfDice;i++)
@@ -256,12 +256,12 @@ namespace Jamaica
                     settingPanel.SetActive(true);
                     
                     await settingBackButton.OnClickAsync(gameCt);
-                    GameInitialData.Instance.diceMaxValue = (int)diceMaxSlider.value;
-                    GameInitialData.Instance.numberOfDice = (int)diceAmountSlider.value;
+                    GameInitialData.Instance.maxDiceFace = (int)diceMaxSlider.value;
+                    GameInitialData.Instance.diceCount = (int)diceAmountSlider.value;
                     settingPanel.SetActive(false);
                     await PlayerDataManager.SavePlayerDataAsync(
-                        new PlayerData(GameData.Score, GameData.ComboCount, GameInitialData.Instance.numberOfDice,
-                            GameInitialData.Instance.diceMaxValue), gameCt);
+                        new PlayerData(GameData.Score, GameData.ComboCount, GameInitialData.Instance.diceCount,
+                            GameInitialData.Instance.maxDiceFace), gameCt);
                 }
             }
         

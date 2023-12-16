@@ -4,8 +4,8 @@ namespace Jamaica
 {
     public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
     {
-        [SerializeField] public int shuffleLength;
-        [SerializeField] public int diceMaxValue;
-        [SerializeField] public int numberOfDice;
+        [SerializeField] public int rollTime;
+        [SerializeField] public int maxDiceFace;
+        [SerializeField] public int diceCount;
     }
 }

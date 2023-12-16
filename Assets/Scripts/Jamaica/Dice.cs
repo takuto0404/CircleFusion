@@ -22,7 +22,7 @@ namespace Jamaica
         //TODO:プレイヤーの特徴を分析
         public async UniTask RollDiceAsync(int rollIndex,CancellationToken gameCt)
         {
-            var rollTime = GameInitialData.Instance.shuffleLength * rollIndex;
+            var rollTime = GameInitialData.Instance.rollTime * rollIndex;
             DiceNumber.Value = 0;
             if (IsAnswerDice)
             {
@@ -52,7 +52,7 @@ namespace Jamaica
 
         private int RollDifferentNumber(int originalNumber)
         {
-            var maxDiceFace = GameInitialData.Instance.diceMaxValue;
+            var maxDiceFace = GameInitialData.Instance.maxDiceFace;
             while (true)
             {
                 var randomNumber = UnityEngine.Random.Range(1, maxDiceFace + 1);
