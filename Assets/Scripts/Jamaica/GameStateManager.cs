@@ -28,9 +28,9 @@ namespace Jamaica
                 await PlayerDataManager.LoadPlayerDataAsync(gameCts.Token);
                 var data = PlayerDataManager.PlayerData;
                 
-                GameData.Timer.Value = 0;
+                GameData.CurrentTime.Value = 0;
                 GameData.Score = data.Score;
-                GameData.Combo = data.Combo;
+                GameData.ComboCount = data.Combo;
                 GameInitialData.Instance.numberOfDice = data.NumberOfDice;
                 GameInitialData.Instance.diceMaxValue = data.DiceMaxNumber;
 
@@ -51,7 +51,7 @@ namespace Jamaica
                 }
                 CountTimerAsync(gameCts.Token).Forget();
                 
-                GameData.Solutions = solveResult.solutions;
+                GameData.FormulaString = solveResult.solutions;
 
                 JamaicaHistory.SetInitHist(DiceCalculator.GetAllDices());
             
@@ -73,17 +73,17 @@ namespace Jamaica
                 var menuCts = new CancellationTokenSource();
                 if (result == 0)
                 {
-                    GameData.Lose();
+                    GameData.GameOver();
                     await GameOveredAsync(menuCts.Token);
                 }
 
                 if (result == 3)
                 {
-                    GameData.Win();
+                    GameData.GameClear();
                     await GameClearedAsync(menuCts.Token);
                 }
 
-                await PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameData.Score, GameData.Combo,
+                await PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameData.Score, GameData.ComboCount,
                     GameInitialData.Instance.numberOfDice, GameInitialData.Instance.diceMaxValue),menuCts.Token);
                 menuCts.Cancel();
             }
@@ -95,13 +95,13 @@ namespace Jamaica
         /// </summary>
         private static async UniTask CountTimerAsync(CancellationToken gameCt)
         {
-            GameData.Timer.Value = 0;
+            GameData.CurrentTime.Value = 0;
 
             var startTime = DateTime.Now;
             while (!gameCt.IsCancellationRequested)
             {
                 var diff = DateTime.Now - startTime;
-                GameData.Timer.Value = (float)diff.TotalSeconds;
+                GameData.CurrentTime.Value = (float)diff.TotalSeconds;
                 await UniTask.DelayFrame(1, cancellationToken: gameCt);
             }
         }

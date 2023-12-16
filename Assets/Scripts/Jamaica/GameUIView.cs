@@ -188,7 +188,7 @@ namespace Jamaica
             {
                 rt = gameClearPanel.GetComponent<RectTransform>();
                 gameClearPanel.SetActive(true);
-                timeResultText.text = $"じかん:{GameData.Timer.Value:F2}";
+                timeResultText.text = $"じかん:{GameData.CurrentTime.Value:F2}";
             }
             else
             {
@@ -196,14 +196,14 @@ namespace Jamaica
                 gameOverPanel.SetActive(true);
                 solutionText.text = "Solutions:\n";
                 var subscribed = new List<int>();
-                for (int i = 0; i < 3 && i < GameData.Solutions.Count; i++)
+                for (int i = 0; i < 3 && i < GameData.FormulaString.Count; i++)
                 {
-                    var randomNum = Random.Range(0, GameData.Solutions.Count);
+                    var randomNum = Random.Range(0, GameData.FormulaString.Count);
                     while (subscribed.Contains(randomNum))
                     {
-                        randomNum = Random.Range(0, GameData.Solutions.Count);
+                        randomNum = Random.Range(0, GameData.FormulaString.Count);
                     }
-                    solutionText.text += $"{GameData.Solutions[randomNum]}\n";
+                    solutionText.text += $"{GameData.FormulaString[randomNum]}\n";
                     subscribed.Add(randomNum);
                 }
             }
@@ -222,7 +222,7 @@ namespace Jamaica
             if (wasGameCleared)
             {
                 comboImage.transform.localScale = new Vector2(1.5f, 1.5f);
-                comboResultText.text = GameData.Combo.ToString();
+                comboResultText.text = GameData.ComboCount.ToString();
                 comboImage.SetActive(true);
                 await comboImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken:gameCt);
             }
@@ -260,7 +260,7 @@ namespace Jamaica
                     GameInitialData.Instance.numberOfDice = (int)diceAmountSlider.value;
                     settingPanel.SetActive(false);
                     await PlayerDataManager.SavePlayerDataAsync(
-                        new PlayerData(GameData.Score, GameData.Combo, GameInitialData.Instance.numberOfDice,
+                        new PlayerData(GameData.Score, GameData.ComboCount, GameInitialData.Instance.numberOfDice,
                             GameInitialData.Instance.diceMaxValue), gameCt);
                 }
             }

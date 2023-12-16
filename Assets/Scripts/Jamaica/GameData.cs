@@ -1,39 +1,24 @@
 using System.Collections.Generic;
-using UniRx;
+using Cysharp.Threading.Tasks;
 
 namespace Jamaica
 {
-    /// <summary>
-    /// いろいろなところからアクセスしたいゲームのデータを入れるstaticクラス
-    /// </summary>
     public static class GameData
     {
-        /// <summary>
-        /// ゲーム中のタイマーの数値
-        /// </summary>
-        public static readonly ReactiveProperty<float> Timer = new();
-
-        /// <summary>
-        /// ゲーム中のスコア
-        /// </summary>
+        public static int ComboCount = 0;
         public static int Score = 0;
+        public static List<string> FormulaString;
+        public static readonly AsyncReactiveProperty<float> CurrentTime = new(0);
 
-        /// <summary>
-        /// 連続正解数
-        /// </summary>
-        public static int Combo = 0;
-
-        public static List<string> Solutions;
-
-        public static void Win()
+        public static void GameClear()
         {
-            Combo++;
-            Score += Combo * (GameInitialData.Instance.numberOfDice + GameInitialData.Instance.diceMaxValue);
+            ComboCount++;
+            Score += ComboCount * (GameInitialData.Instance.numberOfDice + GameInitialData.Instance.diceMaxValue);
         }
 
-        public static void Lose()
+        public static void GameOver()
         {
-            Combo = 0;
+            ComboCount = 0;
         }
     }
 }
