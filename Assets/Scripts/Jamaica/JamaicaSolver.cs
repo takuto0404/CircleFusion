@@ -26,7 +26,7 @@ namespace Jamaica
         private static int _answer;
 
 
-        public static (bool canSolve, List<string> solutions) SolveJamaica(int answer, int[] diceNumbers)
+        public static (bool isSolvable, List<string> solutionStrings) SolveJamaica(int answer, int[] diceNumbers)
         {
             _solutions = new List<string>();
             _dices = new (int number, string text, int beforeOperatorMark)[diceNumbers.Length];

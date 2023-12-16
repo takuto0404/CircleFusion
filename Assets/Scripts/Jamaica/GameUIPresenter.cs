@@ -98,7 +98,7 @@ namespace Jamaica
         {
             var disposable = _diceAndNumberBoxPairDic
                 .Select(keyValue => keyValue.Key.DiceNumber.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
-            disposable.Add(GameData.CurrentTime.Subscribe(time => gameUIView.SetTimerText(time)));
+            disposable.Add(GameState.CurrentTime.Subscribe(time => gameUIView.SetTimerText(time)));
             disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
             {
                 var step = JamaicaHistory.BackHist();

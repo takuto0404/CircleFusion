@@ -52,10 +52,10 @@ namespace Jamaica
 
         private int RollDifferentNumber(int originalNumber)
         {
-            var maxDiceFace = GameInitialData.Instance.maxDiceFace;
+            var maxDiceValue = GameInitialData.Instance.maxDiceValue;
             while (true)
             {
-                var randomNumber = UnityEngine.Random.Range(1, maxDiceFace + 1);
+                var randomNumber = UnityEngine.Random.Range(1,  + 1);
                 if (randomNumber != originalNumber)
                 {
                     return randomNumber;

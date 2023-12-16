@@ -72,7 +72,7 @@ namespace Jamaica
             if (numberBoxes.Count != GameInitialData.Instance.diceCount)
             {
                 diceAmountSlider.value = GameInitialData.Instance.diceCount;
-                diceMaxSlider.value = GameInitialData.Instance.maxDiceFace;
+                diceMaxSlider.value = GameInitialData.Instance.maxDiceValue;
 
                 var numberOfDice = GameInitialData.Instance.diceCount;
                 numberBoxes.ForEach(x => Destroy(x.gameObject));
@@ -181,14 +181,14 @@ namespace Jamaica
         /// <param name="gameCt"></param>
         public async UniTask GameFinishedAnimationAsync(bool wasGameCleared, CancellationToken gameCt)
         {
-            scoreResultText.text = $"ポイント:{GameData.Score}";
-            scoreText.text = $"ポイント:{GameData.Score}";
+            scoreResultText.text = $"ポイント:{GameState.Score}";
+            scoreText.text = $"ポイント:{GameState.Score}";
             RectTransform rt;
             if (wasGameCleared)
             {
                 rt = gameClearPanel.GetComponent<RectTransform>();
                 gameClearPanel.SetActive(true);
-                timeResultText.text = $"じかん:{GameData.CurrentTime.Value:F2}";
+                timeResultText.text = $"じかん:{GameState.CurrentTime.Value:F2}";
             }
             else
             {
@@ -196,14 +196,14 @@ namespace Jamaica
                 gameOverPanel.SetActive(true);
                 solutionText.text = "Solutions:\n";
                 var subscribed = new List<int>();
-                for (int i = 0; i < 3 && i < GameData.FormulaString.Count; i++)
+                for (int i = 0; i < 3 && i < GameState.FormulaString.Count; i++)
                 {
-                    var randomNum = Random.Range(0, GameData.FormulaString.Count);
+                    var randomNum = Random.Range(0, GameState.FormulaString.Count);
                     while (subscribed.Contains(randomNum))
                     {
-                        randomNum = Random.Range(0, GameData.FormulaString.Count);
+                        randomNum = Random.Range(0, GameState.FormulaString.Count);
                     }
-                    solutionText.text += $"{GameData.FormulaString[randomNum]}\n";
+                    solutionText.text += $"{GameState.FormulaString[randomNum]}\n";
                     subscribed.Add(randomNum);
                 }
             }
@@ -222,7 +222,7 @@ namespace Jamaica
             if (wasGameCleared)
             {
                 comboImage.transform.localScale = new Vector2(1.5f, 1.5f);
-                comboResultText.text = GameData.ComboCount.ToString();
+                comboResultText.text = GameState.ComboCount.ToString();
                 comboImage.SetActive(true);
                 await comboImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken:gameCt);
             }
@@ -256,12 +256,12 @@ namespace Jamaica
                     settingPanel.SetActive(true);
                     
                     await settingBackButton.OnClickAsync(gameCt);
-                    GameInitialData.Instance.maxDiceFace = (int)diceMaxSlider.value;
+                    GameInitialData.Instance.maxDiceValue = (int)diceMaxSlider.value;
                     GameInitialData.Instance.diceCount = (int)diceAmountSlider.value;
                     settingPanel.SetActive(false);
                     await PlayerDataManager.SavePlayerDataAsync(
-                        new PlayerData(GameData.Score, GameData.ComboCount, GameInitialData.Instance.diceCount,
-                            GameInitialData.Instance.maxDiceFace), gameCt);
+                        new PlayerData(GameState.Score, GameState.ComboCount, GameInitialData.Instance.diceCount,
+                            GameInitialData.Instance.maxDiceValue), gameCt);
                 }
             }
         
