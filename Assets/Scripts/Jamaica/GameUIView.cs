@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using DG.Tweening;
 using TMPro;
 using UniRx;
@@ -43,7 +44,7 @@ namespace Jamaica
         [SerializeField] private TMP_Text diceMaxValueText;
         [SerializeField] private TMP_Text diceAmountValueText;
 
-        public void SetFormulaText(string formulaText)
+        public void UpdateFormulaText(string formulaText)
         {
             this.formulaText.text = formulaText;
         }
@@ -113,7 +114,7 @@ namespace Jamaica
             drawLine.SetPositions(new[]{Vector2.zero,Vector2.zero});
         }
 
-        public async UniTask ShowNotice()
+        public async UniTask ShowMessageAsync()
         {
             noticePanel.SetActive(true);
             await UniTask.Delay(TimeSpan.FromSeconds(1f));
@@ -235,14 +236,14 @@ namespace Jamaica
             await retireButton.OnClickAsync(gameCt);
         }
 
-        public IObservable<Unit> BackButtonOnClickAsObservable()
+        public IUniTaskAsyncEnumerable<AsyncUnit> BackButtonOnClickAsAsyncEnumerable()
         {
-            return backStepButton.OnClickAsObservable();
+            return backStepButton.OnClickAsAsyncEnumerable();
         }
 
-        public IObservable<Unit> SettingButtonOnClickAsObservable()
+        public IUniTaskAsyncEnumerable<AsyncUnit> SettingButtonOnClickAsAsyncEnumerable()
         {
-            return settingButton.OnClickAsObservable();
+            return settingButton.OnClickAsAsyncEnumerable();
         }
 
         public async UniTask SettingProgress(CancellationToken gameCt)

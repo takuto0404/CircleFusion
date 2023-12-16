@@ -61,7 +61,7 @@ namespace Jamaica
                         gameUIView.DrawLine(AlignPosition(hoveredOne.initialPosition),
                             AlignPosition(hoveredAnotherOne.initialPosition));
                         var canCalculate =
-                            GameUIPresenter.Instance.CanCalculate(hoveredOne, hoveredAnotherOne);
+                            GameUIPresenter.Instance.CheckCalculations(hoveredOne, hoveredAnotherOne);
                         var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
                         gameUIView.ClearLine();
                         operatorResult = result;
@@ -69,8 +69,8 @@ namespace Jamaica
 
                     GameUIPresenter.Instance.Calculation(hoveredOne, hoveredAnotherOne, operatorResult);
                     JamaicaHistory.SetHist(DiceCalculator.GetAllDices(),
-                        GameUIPresenter.Instance.MakeFormulaText(DiceCalculator.FetchCurrentFormula()));
-                    GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().FormulaText);
+                        GameUIPresenter.Instance.CreateFormulaText(DiceCalculator.FetchCurrentFormula()));
+                    GameUIPresenter.Instance.UpdateFormulaText(JamaicaHistory.LastHist().FormulaText);
                 }
             }
             catch (OperationCanceledException e)

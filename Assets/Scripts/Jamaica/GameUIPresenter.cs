@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
@@ -11,15 +12,12 @@ namespace Jamaica
 {
     public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     {
-        /// <summary>
-        /// MVPパターンのV
-        /// </summary>
         [SerializeField] private GameUIView gameUIView;
 
-        /// <summary>
-        /// 演算記号の種類と文字列のディク
-        /// </summary>
-        private readonly Dictionary<OperatorMark, string> _operatorDic = new()
+        private Dictionary<Dice, NumberBox> _diceToNumberBoxMap = new();
+        private Dictionary<NumberBox, Dice> _numberBoxToDiceMap = new();
+
+        private readonly Dictionary<OperatorMark, string> _operationSymbolDictionary = new()
         {
             { OperatorMark.Plus, "+" },
             { OperatorMark.Minus, "-" },
@@ -27,130 +25,120 @@ namespace Jamaica
             { OperatorMark.Devided, "÷" }
         };
 
-
-        /// <summary>
-        /// View担当のNumberBoxとModel担当のDiceクラスの紐付け
-        /// </summary>
-        private Dictionary<Dice, NumberBox> _diceAndNumberBoxPairDic = new();
-
-        private Dictionary<NumberBox, Dice> _numberAndDicePairDic = new();
-
-        private string GetFormulaText()
+        public bool[] CheckCalculations(NumberBox firstNumberBox, NumberBox secondNumberBox)
         {
-            return gameUIView.GetFormulaText();
-        }
-
-        public bool[] CanCalculate(NumberBox one, NumberBox anotherOne)
-        {
-            var diceOneNumber = _numberAndDicePairDic[one].DiceNumber.Value;
-            var diceAnotherOneNumber = _numberAndDicePairDic[anotherOne].DiceNumber.Value;
+            var firstNumber = _numberBoxToDiceMap[firstNumberBox].DiceNumber.Value;
+            var secondNumber = _numberBoxToDiceMap[secondNumberBox].DiceNumber.Value;
             return new[]
             {
                 true,
-                diceOneNumber >= diceAnotherOneNumber,
+                firstNumber >= secondNumber,
                 true,
-                diceAnotherOneNumber != 0 && ((float)diceOneNumber / (float)diceAnotherOneNumber) % 1 == 0,
+                secondNumber != 0 && (float)firstNumber / (float)secondNumber % 1 == 0,
                 true
             };
         }
 
-        public async UniTask RetireAsync(CancellationToken gameCt)
+        public async UniTask WaitForRetirementAsync(CancellationToken gameCt)
         {
             await gameUIView.RetireButtonOnClickAsync(gameCt);
         }
 
-        public void Calculation(NumberBox one, NumberBox anotherOne, OperatorMark operatorMark)
+        public void Calculation(NumberBox firstNumberBox, NumberBox secondNumberBox, OperatorMark operatorSymbol)
         {
-            DiceCalculator.MergeDice(_numberAndDicePairDic[one], _numberAndDicePairDic[anotherOne], operatorMark);
+            DiceCalculator.MergeDice(_numberBoxToDiceMap[firstNumberBox], _numberBoxToDiceMap[secondNumberBox],
+                operatorSymbol);
         }
 
-        public string MakeFormulaText(Formula newFormula)
+        public string CreateFormulaText(Formula newFormula)
         {
             var newFormulaText =
-                $"{newFormula.FirstDice} {_operatorDic[newFormula.OperatorSymbol]} {newFormula.SecondDice} = {newFormula.Result}\n";
-            var text = GameUIPresenter.Instance.GetFormulaText();
-            text += newFormulaText;
-            return text;
+                $"{newFormula.FirstDice} {_operationSymbolDictionary[newFormula.OperatorSymbol]} {newFormula.SecondDice} = {newFormula.Result}\n";
+            return gameUIView.GetFormulaText() + newFormulaText;
         }
 
-        public void PuzzleInit()
+        public void InitializePuzzle()
         {
             gameUIView.PuzzleInit();
-            _diceAndNumberBoxPairDic = new Dictionary<Dice, NumberBox>();
-            gameUIView.numberBoxes.ForEach(box => { _diceAndNumberBoxPairDic.Add(new Dice(), box); });
-            var answerDice = new Dice();
-            DiceCalculator.SetDice(_diceAndNumberBoxPairDic.Keys.ToList(), answerDice);
-            _diceAndNumberBoxPairDic.Add(answerDice, gameUIView.answerBox);
-
-            _numberAndDicePairDic = new Dictionary<NumberBox, Dice>();
-            _diceAndNumberBoxPairDic.Keys.ToList().ForEach(dice =>
+            _diceToNumberBoxMap = new Dictionary<Dice, NumberBox>();
+            foreach (var numberBox in gameUIView.numberBoxes)
             {
-                _numberAndDicePairDic.Add(_diceAndNumberBoxPairDic[dice], dice);
+                _diceToNumberBoxMap.Add(new Dice(), numberBox);
+            }
+
+            var answerDice = new Dice();
+            _diceToNumberBoxMap.Add(answerDice, gameUIView.answerBox);
+
+            DiceCalculator.SetDice(_diceToNumberBoxMap.Keys.ToList(), answerDice);
+
+            _numberBoxToDiceMap =
+                _diceToNumberBoxMap.ToDictionary(keyValuePair => keyValuePair.Value, keyValuePair => keyValuePair.Key);
+        }
+
+        private void UndoStep()
+        {
+            var step = JamaicaHistory.BackHist();
+            if (step == null) return;
+            gameUIView.HideEverything();
+            DiceCalculator.UndoStep(step);
+            UpdateFormulaText(step.FormulaText);
+            _diceToNumberBoxMap.ToList().ForEach(keyValue =>
+            {
+                if (keyValue.Key.IsActive) keyValue.Value.ShowBox();
             });
         }
 
-
-        /// <summary>
-        /// パズル中の非同期処理
-        /// </summary>
-        /// <param name="gameCt"></param>
-        public async UniTask PuzzleBehaviorAsync(CancellationToken gameCt)
+        public async UniTask EndRollAnimationAsync(CancellationToken gameCt)
         {
-            var disposable = _diceAndNumberBoxPairDic
-                .Select(keyValue => keyValue.Key.DiceNumber.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
-            disposable.Add(GameState.CurrentTime.Subscribe(time => gameUIView.SetTimerText(time)));
-            disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
-            {
-                var step = JamaicaHistory.BackHist();
-                if (step == null) return;
-                gameUIView.HideEverything();
-                DiceCalculator.UndoStep(step);
-                SetFormulaText(step.FormulaText);
-                _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
-                {
-                    if (keyValue.Key.IsActive) keyValue.Value.ShowBox();
-                });
-            }));
-            disposable.Add(gameUIView.SettingButtonOnClickAsObservable()
-                .Subscribe(async _ => await gameUIView.SettingProgress(gameCt)));
-
-            var diceList = _diceAndNumberBoxPairDic.Keys.ToList();
-            
-            disposable.AddRange(diceList.Select(dice => dice.MergedDice.Where(_ => !dice.IsActive).Subscribe(
-                    async merged =>
-                    {
-                        await _diceAndNumberBoxPairDic[dice]
-                            .HideBoxAsync(_diceAndNumberBoxPairDic[merged].GetComponent<RectTransform>().position,
-                                gameCt);
-                    }))
-                .ToList());
-            disposable.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue =>
-                keyValue.Key.IsDiceRolled.Subscribe(async _ =>
-                    await keyValue.Value.FinishedShuffleAnimationAsync(gameCt))).ToList());
-
-            await UniTask.WaitUntilCanceled(gameCt);
-            disposable.ForEach(item => item.Dispose());
+            await UniTask.WhenAll(_diceToNumberBoxMap.ToList().Select(keyValue =>
+                keyValue.Key.IsDiceRolled.WithoutCurrent().ForEachAwaitAsync(async _ =>
+                    await keyValue.Value.FinishedShuffleAnimationAsync(gameCt), cancellationToken: gameCt)));
         }
 
-        public async UniTask ShowNotice()
+        public async UniTask HandlePuzzlePlayAsync(CancellationToken gameCt)
         {
-            await gameUIView.ShowNotice();
+            var uiCts = new CancellationTokenSource();
+            var mergedCt =
+                CancellationTokenSource.CreateLinkedTokenSource(gameCt, uiCts.Token).Token;
+            var updateNumberBoxTask = UniTask.WhenAll(_diceToNumberBoxMap.Select(keyValue =>
+                keyValue.Key.DiceNumber.WithoutCurrent().ForEachAsync(number => keyValue.Value.SetNumberText(number),
+                    cancellationToken: mergedCt)));
+            var updateTimerTextTask = GameState.CurrentTime.WithoutCurrent()
+                .ForEachAsync(time => gameUIView.SetTimerText(time), cancellationToken: mergedCt);
+            var undoProcedureTask = gameUIView.BackButtonOnClickAsAsyncEnumerable().ForEachAsync(_ => UndoStep(), cancellationToken: mergedCt);
+            var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable()
+                .ForEachAwaitAsync(async _ => await gameUIView.SettingProgress(mergedCt), cancellationToken:mergedCt);
+            var hideNumberBoxTask = UniTask.WhenAll(DiceCalculator.GetAllDices().Select(dice => dice.MergedDice
+                .Where(_ => !dice.IsActive)
+                .ForEachAwaitAsync(
+                    async mergedDice => await _diceToNumberBoxMap[dice]
+                        .HideBoxAsync(_diceToNumberBoxMap[mergedDice].GetComponent<RectTransform>().position, mergedCt),
+                    cancellationToken: mergedCt)));
+            await UniTask.WhenAny(UniTask.WaitUntilCanceled(mergedCt), updateNumberBoxTask, updateTimerTextTask,
+                undoProcedureTask, openSettingsTask, hideNumberBoxTask);
+
+            uiCts.Cancel();
         }
 
-        public void SetFormulaText(string formulaText)
+        public async UniTask ShowMessageAsync()
         {
-            gameUIView.SetFormulaText(formulaText);
+            await gameUIView.ShowMessageAsync();
         }
 
-        public async UniTask GameFinished(bool wasCleared, CancellationToken gameCt)
+        public void UpdateFormulaText(string formulaString)
         {
-            await gameUIView.GameFinishedAnimationAsync(wasCleared, gameCt);
+            gameUIView.UpdateFormulaText(formulaString);
         }
 
-        public async UniTask MoveToEqualAsync(CancellationToken gameCt)
+        public async UniTask EndGameAnimationAsync(bool isCleared, CancellationToken gameCt)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(0.75), cancellationToken: gameCt);
-            await gameUIView.MoveToEqualAsync(_diceAndNumberBoxPairDic[DiceCalculator.GetLastDice()], gameCt);
+            await gameUIView.GameFinishedAnimationAsync(isCleared, gameCt);
+        }
+
+        public async UniTask MoveToCenterAsync(CancellationToken gameCt)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(0.75f), cancellationToken: gameCt);
+            await gameUIView.MoveToEqualAsync(_diceToNumberBoxMap[DiceCalculator.GetLastDice()], gameCt);
         }
     }
 }
