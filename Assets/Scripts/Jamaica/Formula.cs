@@ -2,17 +2,17 @@ namespace Jamaica
 {
     public class Formula
     {
-        public Formula(int one ,int anotherOne,OperatorMark operatorMark,int answer)
+        public Formula(int firstDice ,int secondDice,OperatorMark operatorSymbol,int result)
         {
-            One = one;
-            AnotherOne = anotherOne;
-            OperatorMark = operatorMark;
-            Answer = answer;
+            FirstDice = firstDice;
+            SecondDice = secondDice;
+            OperatorSymbol = operatorSymbol;
+            Result = result;
         }
-        public readonly int One;
-        public readonly int AnotherOne;
-        public readonly OperatorMark OperatorMark;
-        public readonly int Answer;
+        public readonly int FirstDice;
+        public readonly int SecondDice;
+        public readonly OperatorMark OperatorSymbol;
+        public readonly int Result;
     
     }
 }

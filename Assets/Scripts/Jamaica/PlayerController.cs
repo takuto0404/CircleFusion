@@ -68,8 +68,8 @@ namespace Jamaica
                     }
 
                     GameUIPresenter.Instance.Calculation(hoveredOne, hoveredAnotherOne, operatorResult);
-                    JamaicaHistory.SetHist(DiceModel.GetAllDices(),
-                        GameUIPresenter.Instance.MakeFormulaText(DiceModel.FetchCurrentFormula()));
+                    JamaicaHistory.SetHist(DiceCalculator.GetAllDices(),
+                        GameUIPresenter.Instance.MakeFormulaText(DiceCalculator.FetchCurrentFormula()));
                     GameUIPresenter.Instance.SetFormulaText(JamaicaHistory.LastHist().FormulaText);
                 }
             }

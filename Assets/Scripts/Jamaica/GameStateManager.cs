@@ -35,7 +35,7 @@ namespace Jamaica
                 GameInitialData.Instance.diceMaxValue = data.DiceMaxNumber;
 
                 GameUIPresenter.Instance.PuzzleInit();
-                DiceModel.InitializePuzzle();
+                DiceCalculator.InitializePuzzle();
                 JamaicaHistory.PuzzleInit();
 
                 var uiTask = GameUIPresenter.Instance.PuzzleBehaviorAsync(gameCts.Token);
@@ -45,19 +45,19 @@ namespace Jamaica
                 while (!solveResult.canSolve)
                 {
                     if(i != 0)await GameUIPresenter.Instance.ShowNotice();
-                    await DiceModel.RollDiceAsync(gameCts.Token);
-                    solveResult = JamaicaSolver.SolveJamaica(DiceModel.GetAnswerNumber(), DiceModel.ExtractDiceNumbers());
+                    await DiceCalculator.RollDiceAsync(gameCts.Token);
+                    solveResult = JamaicaSolver.SolveJamaica(DiceCalculator.GetAnswerNumber(), DiceCalculator.ExtractDiceNumbers());
                     i++;
                 }
                 CountTimerAsync(gameCts.Token).Forget();
                 
                 GameData.Solutions = solveResult.solutions;
 
-                JamaicaHistory.SetInitHist(DiceModel.GetAllDices());
+                JamaicaHistory.SetInitHist(DiceCalculator.GetAllDices());
             
                 var retireTask = GameUIPresenter.Instance.RetireAsync(gameCts.Token);
                 var gameTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
-                var clearTask = UniTask.WaitUntil(DiceModel.IsCorrectReached, cancellationToken: gameCts.Token);
+                var clearTask = UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retireTask, gameTask, uiTask, clearTask);
 
                 if (result == 3)

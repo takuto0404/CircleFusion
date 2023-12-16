@@ -61,13 +61,13 @@ namespace Jamaica
 
         public void Calculation(NumberBox one, NumberBox anotherOne, OperatorMark operatorMark)
         {
-            DiceModel.MergeDice(_numberAndDicePairDic[one], _numberAndDicePairDic[anotherOne], operatorMark);
+            DiceCalculator.MergeDice(_numberAndDicePairDic[one], _numberAndDicePairDic[anotherOne], operatorMark);
         }
 
         public string MakeFormulaText(Formula newFormula)
         {
             var newFormulaText =
-                $"{newFormula.One} {_operatorDic[newFormula.OperatorMark]} {newFormula.AnotherOne} = {newFormula.Answer}\n";
+                $"{newFormula.FirstDice} {_operatorDic[newFormula.OperatorSymbol]} {newFormula.SecondDice} = {newFormula.Result}\n";
             var text = GameUIPresenter.Instance.GetFormulaText();
             text += newFormulaText;
             return text;
@@ -79,7 +79,7 @@ namespace Jamaica
             _diceAndNumberBoxPairDic = new Dictionary<Dice, NumberBox>();
             gameUIView.numberBoxes.ForEach(box => { _diceAndNumberBoxPairDic.Add(new Dice(), box); });
             var answerDice = new Dice();
-            DiceModel.SetDice(_diceAndNumberBoxPairDic.Keys.ToList(), answerDice);
+            DiceCalculator.SetDice(_diceAndNumberBoxPairDic.Keys.ToList(), answerDice);
             _diceAndNumberBoxPairDic.Add(answerDice, gameUIView.answerBox);
 
             _numberAndDicePairDic = new Dictionary<NumberBox, Dice>();
@@ -104,7 +104,7 @@ namespace Jamaica
                 var step = JamaicaHistory.BackHist();
                 if (step == null) return;
                 gameUIView.HideEverything();
-                DiceModel.UndoStep(step);
+                DiceCalculator.UndoStep(step);
                 SetFormulaText(step.FormulaText);
                 _diceAndNumberBoxPairDic.ToList().ForEach(keyValue =>
                 {
@@ -150,7 +150,7 @@ namespace Jamaica
         public async UniTask MoveToEqualAsync(CancellationToken gameCt)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(0.75), cancellationToken: gameCt);
-            await gameUIView.MoveToEqualAsync(_diceAndNumberBoxPairDic[DiceModel.GetLastDice()], gameCt);
+            await gameUIView.MoveToEqualAsync(_diceAndNumberBoxPairDic[DiceCalculator.GetLastDice()], gameCt);
         }
     }
 }

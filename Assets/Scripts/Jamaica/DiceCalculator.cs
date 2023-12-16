@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 
 namespace Jamaica
 {
-    public static class DiceModel
+    public static class DiceCalculator
     {
         private static Dice _answerDice;
         private static List<Dice> _dices;
