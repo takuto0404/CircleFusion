@@ -1,17 +1,17 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using UniRx;
 
 namespace Jamaica
 {
     public class Dice
     {
-        public readonly ReactiveProperty<int> Number = new();
-        public bool IsAnswerBox;
+        public readonly AsyncReactiveProperty<int> DiceNumber = new(-1);
+        public bool IsAnswerDice;
         public bool IsActive = true;
         public readonly AsyncReactiveProperty<Dice> MergedDice = new(null);
-        public readonly AsyncReactiveProperty<bool> IsFinishedShuffle = new(false);
+        public readonly AsyncReactiveProperty<bool> IsDiceRolled = new(false);
+        private const float UpdateIntervalInSeconds = 0.2f;
 
         //TODO:時間のテキストのサイズがおかしい
         //TODO:Returnボタンが消えない
@@ -20,46 +20,46 @@ namespace Jamaica
         //TODO:スコアが大きすぎる
         //TODO:タイムが反映されるように
         //TODO:プレイヤーの特徴を分析
-        public async UniTask ShuffleAsync(float shuffleLength,CancellationToken gameCt)
+        public async UniTask RollDiceAsync(float rollTime, CancellationToken gameCt)
         {
-            Number.Value = 0;
-            if (IsAnswerBox)
+            DiceNumber.Value = 0;
+            if (IsAnswerDice)
             {
-                (int number1, int number2) randomAnswer = (0, 0);
-                int randomNum1 = randomAnswer.number1;
-                int randomNum2 = randomAnswer.number2;
-                for (int i = 0; i < shuffleLength; i++)
+                (int tensPlace, int unitsPlace) randomPair = (0, 0);
+
+                for (var i = 0; i < rollTime; i++)
                 {
-                    while (randomNum1 == randomAnswer.number1)
-                    {
-                        randomNum1 = UnityEngine.Random.Range(1,GameInitialData.Instance.diceMaxValue + 1);
-                    }
-
-                    while (randomNum2 == randomAnswer.number2)
-                    {
-                        randomNum2 = UnityEngine.Random.Range(1,GameInitialData.Instance.diceMaxValue + 1);
-                    }
-                    randomAnswer = (randomNum1, randomNum2);
-                    Number.Value = randomAnswer.number1 * 10 + randomAnswer.number2;
-                    await UniTask.Delay(TimeSpan.FromSeconds(0.02f),cancellationToken : gameCt);
+                    randomPair = (RollDifferentNumber(randomPair.tensPlace),
+                        RollDifferentNumber(randomPair.unitsPlace));
+                    DiceNumber.Value = randomPair.tensPlace * 10 + randomPair.unitsPlace;
+                    await UniTask.Delay(TimeSpan.FromSeconds(UpdateIntervalInSeconds), cancellationToken: gameCt);
                 }
-
-                IsFinishedShuffle.Value = true;
-                return;
+                IsDiceRolled.Value = true;
             }
-            var randomNum = 0;
-            for (var i = 0; i < shuffleLength; i++)
+            else
             {
-                while (randomNum == Number.Value)
+                var randomNumber = 0;
+                for (var i = 0; i < rollTime; i++)
                 {
-                    randomNum = UnityEngine.Random.Range(1, GameInitialData.Instance.diceMaxValue + 1);
+                    randomNumber = RollDifferentNumber(randomNumber);
+                    DiceNumber.Value = randomNumber;
+                    await UniTask.Delay(TimeSpan.FromSeconds(UpdateIntervalInSeconds), cancellationToken: gameCt);
                 }
-
-                Number.Value = randomNum;
-                await UniTask.Delay(TimeSpan.FromSeconds(0.02f), cancellationToken: gameCt);
+                IsDiceRolled.Value = true;
             }
+        }
 
-            IsFinishedShuffle.Value = true;
+        private int RollDifferentNumber(int originalNumber)
+        {
+            var maxDiceFace = GameInitialData.Instance.diceMaxValue;
+            while (true)
+            {
+                var randomNumber = UnityEngine.Random.Range(1, maxDiceFace + 1);
+                if (randomNumber != originalNumber)
+                {
+                    return randomNumber;
+                }
+            }
         }
     }
 }

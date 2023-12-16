@@ -42,8 +42,8 @@ namespace Jamaica
 
         public bool[] CanCalculate(NumberBox one, NumberBox anotherOne)
         {
-            var diceOneNumber = _numberAndDicePairDic[one].Number.Value;
-            var diceAnotherOneNumber = _numberAndDicePairDic[anotherOne].Number.Value;
+            var diceOneNumber = _numberAndDicePairDic[one].DiceNumber.Value;
+            var diceAnotherOneNumber = _numberAndDicePairDic[anotherOne].DiceNumber.Value;
             return new[]
             {
                 true,
@@ -97,7 +97,7 @@ namespace Jamaica
         public async UniTask PuzzleBehaviorAsync(CancellationToken gameCt)
         {
             var disposable = _diceAndNumberBoxPairDic
-                .Select(keyValue => keyValue.Key.Number.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
+                .Select(keyValue => keyValue.Key.DiceNumber.Subscribe(num => keyValue.Value.SetNumberText(num))).ToList();
             disposable.Add(GameData.Timer.Subscribe(time => gameUIView.SetTimerText(time)));
             disposable.Add(gameUIView.BackButtonOnClickAsObservable().Subscribe(_ =>
             {
@@ -125,7 +125,7 @@ namespace Jamaica
                     }))
                 .ToList());
             disposable.AddRange(_diceAndNumberBoxPairDic.ToList().Select(keyValue =>
-                keyValue.Key.IsFinishedShuffle.Subscribe(async _ =>
+                keyValue.Key.IsDiceRolled.Subscribe(async _ =>
                     await keyValue.Value.FinishedShuffleAnimationAsync(gameCt))).ToList());
 
             await UniTask.WaitUntilCanceled(gameCt);

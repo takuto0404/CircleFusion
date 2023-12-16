@@ -25,8 +25,8 @@ namespace Jamaica
         /// <param name="gameCt"></param>
         public static async UniTask ShuffleDicesAsync(CancellationToken gameCt)
         {
-            var shuffleTasks = Enumerable.Range(0,GameInitialData.Instance.numberOfDice).Select(i => _dices[i].ShuffleAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
-            shuffleTasks.Add(_answerDice.ShuffleAsync((1 + GameInitialData.Instance.numberOfDice) * GameInitialData.Instance.shuffleLength,gameCt));
+            var shuffleTasks = Enumerable.Range(0,GameInitialData.Instance.numberOfDice).Select(i => _dices[i].RollDiceAsync((i + 1) * GameInitialData.Instance.shuffleLength,gameCt)).ToList();
+            shuffleTasks.Add(_answerDice.RollDiceAsync((1 + GameInitialData.Instance.numberOfDice) * GameInitialData.Instance.shuffleLength,gameCt));
             await UniTask.WhenAll(shuffleTasks);
         }
         //TODO:Refactoring
@@ -35,12 +35,12 @@ namespace Jamaica
 
         public static int[] GetDiceNumbers()
         {
-            return _dices.Where(dice => !dice.IsAnswerBox).Select(dice => dice.Number.Value).ToArray();
+            return _dices.Where(dice => !dice.IsAnswerDice).Select(dice => dice.DiceNumber.Value).ToArray();
         }
 
         public static int GetAnswerNumber()
         {
-            return _answerDice.Number.Value;
+            return _answerDice.DiceNumber.Value;
         }
 
         public static Dice GetLastDice()
@@ -56,8 +56,8 @@ namespace Jamaica
         {
             var activeBoxes = _dices.Where(item => item.IsActive).ToArray();
             if (activeBoxes.Length != 1) return false;
-            var lastBoxNumber = activeBoxes.First().Number.Value;
-            return lastBoxNumber == _answerDice.Number.Value;
+            var lastBoxNumber = activeBoxes.First().DiceNumber.Value;
+            return lastBoxNumber == _answerDice.DiceNumber.Value;
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace Jamaica
         {
             for (var i = 0; i < _dices.Count; i++)
             {
-                _dices[i].Number.Value = hist.Dices[i].DiceInfo.diceNumber;
+                _dices[i].DiceNumber.Value = hist.Dices[i].DiceInfo.diceNumber;
                 _dices[i].IsActive = hist.Dices[i].DiceInfo.isActive;
             }
         }
@@ -87,7 +87,7 @@ namespace Jamaica
         {
             _dices = new List<Dice>();
             _answerDice = answerDice;
-            _answerDice.IsAnswerBox = true;
+            _answerDice.IsAnswerDice = true;
             dices.ForEach(item => _dices.Add(item));
         }
 
@@ -105,8 +105,8 @@ namespace Jamaica
         public static void MergeDice(Dice one, Dice anotherOne,OperatorMark operatorMark)
         {
             var result = Calculation(one, anotherOne, operatorMark);
-            _thisTimeFormula = new Formula(one.Number.Value, anotherOne.Number.Value, operatorMark, result);
-            one.Number.Value = result;
+            _thisTimeFormula = new Formula(one.DiceNumber.Value, anotherOne.DiceNumber.Value, operatorMark, result);
+            one.DiceNumber.Value = result;
             anotherOne.IsActive = false;
             anotherOne.MergedDice.Value = one;
         }
@@ -120,8 +120,8 @@ namespace Jamaica
         /// <returns></returns>
         private static int Calculation(Dice one,Dice anotherOne,OperatorMark operatorMark)
         {
-            var value1 = one.Number.Value;
-            var value2 = anotherOne.Number.Value;
+            var value1 = one.DiceNumber.Value;
+            var value2 = anotherOne.DiceNumber.Value;
             switch (operatorMark)
             {
                 case OperatorMark.Plus:

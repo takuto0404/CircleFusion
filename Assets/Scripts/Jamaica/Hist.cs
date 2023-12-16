@@ -10,7 +10,7 @@ namespace Jamaica
         public DiceInfoClass(Dice dice)
         {
             DiceInfo.isActive = dice.IsActive;
-            DiceInfo.diceNumber = dice.Number.Value;
+            DiceInfo.diceNumber = dice.DiceNumber.Value;
         }
     }
 
