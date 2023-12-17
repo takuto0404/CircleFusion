@@ -983,7 +983,7 @@ GameObject:
   - component: {fileID: 184028753}
   - component: {fileID: 184028752}
   m_Layer: 5
-  m_Name: SettingPanel
+  m_Name: SettingsPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1069,7 +1069,7 @@ GameObject:
   - component: {fileID: 261478497}
   - component: {fileID: 261478496}
   m_Layer: 5
-  m_Name: TimesMark
+  m_Name: Times
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1229,7 +1229,7 @@ GameObject:
   - component: {fileID: 299523553}
   - component: {fileID: 299523552}
   m_Layer: 5
-  m_Name: ReturnMark
+  m_Name: Return
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1348,7 +1348,7 @@ GameObject:
   m_Component:
   - component: {fileID: 406330687}
   m_Layer: 0
-  m_Name: OperatorMarks
+  m_Name: OperatorSymbols
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1386,7 +1386,7 @@ GameObject:
   - component: {fileID: 423872460}
   - component: {fileID: 423872459}
   m_Layer: 5
-  m_Name: DiceAmountText
+  m_Name: DiceCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1943,7 +1943,7 @@ GameObject:
   - component: {fileID: 518442434}
   - component: {fileID: 518442433}
   m_Layer: 5
-  m_Name: DiceAmountValueText
+  m_Name: DiceCountText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2297,7 +2297,7 @@ GameObject:
   - component: {fileID: 557176644}
   - component: {fileID: 557176643}
   m_Layer: 5
-  m_Name: NoticeText
+  m_Name: MessagePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2433,7 +2433,7 @@ GameObject:
   - component: {fileID: 573579287}
   - component: {fileID: 573579289}
   m_Layer: 5
-  m_Name: SettingButton
+  m_Name: SettingsButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2553,7 +2553,7 @@ GameObject:
   - component: {fileID: 595104029}
   - component: {fileID: 595104030}
   m_Layer: 5
-  m_Name: DiceAmount
+  m_Name: DiceAmountSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3313,7 +3313,7 @@ GameObject:
   - component: {fileID: 772299071}
   - component: {fileID: 772299070}
   m_Layer: 5
-  m_Name: AnswerText
+  m_Name: SolutionText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4743,7 +4743,7 @@ GameObject:
   - component: {fileID: 1219462975}
   - component: {fileID: 1219462974}
   m_Layer: 5
-  m_Name: ReturnStepButton
+  m_Name: UndoButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5036,7 +5036,7 @@ GameObject:
   - component: {fileID: 1357739195}
   - component: {fileID: 1357739194}
   m_Layer: 5
-  m_Name: ComboImage
+  m_Name: ComboCountImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5113,7 +5113,7 @@ GameObject:
   - component: {fileID: 1360368222}
   - component: {fileID: 1360368223}
   m_Layer: 5
-  m_Name: DiceMax
+  m_Name: DiceMaxSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5205,7 +5205,7 @@ GameObject:
   - component: {fileID: 1399788659}
   - component: {fileID: 1399788658}
   m_Layer: 5
-  m_Name: NoticePanel
+  m_Name: MessagePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5473,7 +5473,7 @@ GameObject:
   - component: {fileID: 1703252041}
   - component: {fileID: 1703252040}
   m_Layer: 5
-  m_Name: TimeResultText
+  m_Name: ResultTimeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5744,7 +5744,7 @@ GameObject:
   - component: {fileID: 1708011301}
   - component: {fileID: 1708011303}
   m_Layer: 5
-  m_Name: AnswerNumber
+  m_Name: AnswerNumberBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5989,7 +5989,7 @@ GameObject:
   - component: {fileID: 1748188723}
   - component: {fileID: 1748188722}
   m_Layer: 5
-  m_Name: MinusMark
+  m_Name: Minus
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6111,7 +6111,7 @@ GameObject:
   - component: {fileID: 1770744964}
   - component: {fileID: 1770744963}
   m_Layer: 5
-  m_Name: PlusMark
+  m_Name: Plus
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6373,7 +6373,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1824927790
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6848,7 +6848,7 @@ GameObject:
   - component: {fileID: 2064662243}
   - component: {fileID: 2064662242}
   m_Layer: 5
-  m_Name: DevidedMark
+  m_Name: Devided
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7366,7 +7366,7 @@ GameObject:
   - component: {fileID: 2135162339}
   - component: {fileID: 2135162338}
   m_Layer: 5
-  m_Name: DiceMaxValueText
+  m_Name: DiceMaxText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

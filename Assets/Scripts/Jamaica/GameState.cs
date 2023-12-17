@@ -5,10 +5,10 @@ namespace Jamaica
 {
     public static class GameState
     {
-        public static int ComboCount = 0;
-        public static int Score = 0;
-        public static List<string> FormulaString;
         public static readonly AsyncReactiveProperty<float> CurrentTime = new(0);
+        public static int ComboCount;
+        public static int Score;
+        public static List<string> FormulaStrings;
 
         public static void GameClear()
         {
@@ -21,7 +21,7 @@ namespace Jamaica
             ComboCount = 0;
         }
 
-        public static void InitializePuzzle(int comboCount,int score)
+        public static void InitializePuzzle(int comboCount, int score)
         {
             CurrentTime.Value = 0;
             ComboCount = comboCount;

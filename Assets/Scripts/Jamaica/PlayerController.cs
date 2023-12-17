@@ -62,13 +62,13 @@ namespace Jamaica
                             AlignPosition(hoveredAnotherOne.initialPosition));
                         var canCalculate =
                             GameUIPresenter.Instance.CheckCalculations(hoveredOne, hoveredAnotherOne);
-                        var result = await gameUIView.SelectOperatorsAsync(canCalculate, gameCt);
+                        var result = await gameUIView.SelectOperatorAsync(canCalculate, gameCt);
                         gameUIView.ClearLine();
                         operatorResult = result;
                     }
 
                     GameUIPresenter.Instance.Calculation(hoveredOne, hoveredAnotherOne, operatorResult);
-                    JamaicaHistory.SetHist(DiceCalculator.GetAllDices(),
+                    JamaicaHistory.SetHist(DiceCalculator.GetAllDices(), 
                         GameUIPresenter.Instance.CreateFormulaText(DiceCalculator.FetchCurrentFormula()));
                     GameUIPresenter.Instance.UpdateFormulaText(JamaicaHistory.LastHist().FormulaText);
                 }

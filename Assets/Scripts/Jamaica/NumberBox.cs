@@ -75,7 +75,7 @@ namespace Jamaica
         /// </summary>
         /// <param name="answerBoxPosition">目標値のサイコロの場所</param>
         /// <param name="gameCt"></param>
-        public async UniTask MoveToEqualAsync(Vector2 answerBoxPosition,CancellationToken gameCt)
+        public async UniTask MoveToCenterAsync(Vector2 answerBoxPosition,CancellationToken gameCt)
         {
             var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(gameCt, destroyCt).Token;
             Sequence sequence = DOTween.Sequence();

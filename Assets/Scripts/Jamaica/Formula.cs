@@ -6,13 +6,13 @@ namespace Jamaica
         {
             FirstDice = firstDice;
             SecondDice = secondDice;
-            OperatorSymbol = operatorSymbol;
             Result = result;
+            OperatorSymbol = operatorSymbol;
         }
         public readonly int FirstDice;
         public readonly int SecondDice;
-        public readonly OperatorMark OperatorSymbol;
         public readonly int Result;
+        public readonly OperatorMark OperatorSymbol;
     
     }
 }

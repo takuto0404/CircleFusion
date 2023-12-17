@@ -14,6 +14,19 @@ namespace Jamaica
             PuzzleFlowAsync().Forget();
         }
 
+        private static async UniTask CountTimerAsync(CancellationToken gameCt)
+        {
+            GameState.CurrentTime.Value = 0;
+
+            var startTime = DateTime.Now;
+            while (!gameCt.IsCancellationRequested)
+            {
+                var diff = DateTime.Now - startTime;
+                GameState.CurrentTime.Value = (float)diff.TotalSeconds;
+                await UniTask.DelayFrame(1, cancellationToken: gameCt);
+            }
+        }
+
         private static void InitializePuzzle()
         {
             var playerData = PlayerDataManager.PlayerData;
@@ -44,8 +57,8 @@ namespace Jamaica
                 await GameUIPresenter.Instance.ShowMessageAsync();
             }
 
-            GameState.FormulaString = solutionInfo.solutionStrings;
-                
+            GameState.FormulaStrings = solutionInfo.solutionStrings;
+
             JamaicaHistory.SetInitHist(DiceCalculator.GetAllDices());
         }
 
@@ -59,23 +72,24 @@ namespace Jamaica
             {
                 var gameCts = new CancellationTokenSource();
                 await PreparePuzzle(gameCts.Token);
-                
+
                 CountTimerAsync(gameCts.Token).Forget();
-                
+
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
                 var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
-                var gameCompetitionTask = UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
+                var gameCompetitionTask =
+                    UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
 
-                
+
                 if (result == 3)
                 {
                     await GameUIPresenter.Instance.MoveToCenterAsync(gameCts.Token);
                 }
-                
+
                 gameCts.Cancel();
-                
+
                 if (result == 2)
                 {
                     continue;
@@ -93,22 +107,10 @@ namespace Jamaica
                         await GameUIPresenter.Instance.EndGameAnimationAsync(true, menuCts.Token);
                         break;
                 }
+
                 await PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameState.Score, GameState.ComboCount,
                     GameInitialData.Instance.diceCount, GameInitialData.Instance.maxDiceValue), menuCts.Token);
                 menuCts.Cancel();
-            }
-        }
-
-        private static async UniTask CountTimerAsync(CancellationToken gameCt)
-        {
-            GameState.CurrentTime.Value = 0;
-
-            var startTime = DateTime.Now;
-            while (!gameCt.IsCancellationRequested)
-            {
-                var diff = DateTime.Now - startTime;
-                GameState.CurrentTime.Value = (float)diff.TotalSeconds;
-                await UniTask.DelayFrame(1, cancellationToken: gameCt);
             }
         }
     }

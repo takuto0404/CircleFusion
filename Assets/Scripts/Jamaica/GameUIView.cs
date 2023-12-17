@@ -1,152 +1,122 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
 using DG.Tweening;
 using TMPro;
-using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 namespace Jamaica
 {
     public class GameUIView : MonoBehaviour
     {
-        [SerializeField] private Button backStepButton;
-        [SerializeField] private TMP_Text solutionText;
-        [SerializeField] public NumberBox answerBox;
-        [SerializeField] private GameObject titlePanel;
-        [SerializeField] public List<NumberBox> numberBoxes;
+        [SerializeField] private Button exitSettingsButton;
         [SerializeField] private Button retireButton;
-        [SerializeField] private GameObject comboImage;
         [SerializeField] private Button restartButton;
-        [SerializeField] private TMP_Text formulaText;
-        [SerializeField] private GameObject noticePanel;
-        [SerializeField] private TMP_Text scoreText;
-        [SerializeField] private TMP_Text timeText;
+        [SerializeField] private Button settingsButton;
+        [SerializeField] private Button undoStepButton;
+        [SerializeField] private GameObject comboCounterImage;
+        [SerializeField] private GameObject messagePanel;
         [SerializeField] private GameObject gameClearPanel;
         [SerializeField] private GameObject gameOverPanel;
-        [SerializeField] private TMP_Text scoreResultText;
-        [SerializeField] private TMP_Text timeResultText;
-        [SerializeField] private TMP_Text comboResultText;
-        [SerializeField] private List<Button> operatorButtons;
-        [SerializeField] private UGUILineRenderer drawLine;
-        [SerializeField] private Button settingButton;
-        [SerializeField] private GameObject settingPanel;
-        [SerializeField] private Slider diceMaxSlider;
-        [SerializeField] private Slider diceAmountSlider;
-        [SerializeField] private Button settingBackButton;
         [SerializeField] private GameObject numberBoxPrefab;
-        [SerializeField] private Transform canvasT;
-        [SerializeField] private TMP_Text diceMaxValueText;
-        [SerializeField] private TMP_Text diceAmountValueText;
+        [SerializeField] private GameObject settingsPanel;
+        [SerializeField] private GameObject titlePanel;
+        [SerializeField] private List<Button> operatorButtons;
+        [SerializeField] public List<NumberBox> numberBoxes;
+        [SerializeField] public NumberBox answerNumberBox;
+        [SerializeField] private Slider diceMaxSlider;
+        [SerializeField] private TMP_Text diceMaxText;
+        [SerializeField] private Slider diceCountSlider;
+        [SerializeField] private TMP_Text diceCountText;
+        [SerializeField] private TMP_Text formulaText;
+        [SerializeField] private TMP_Text solutionText;
+        [SerializeField] private TMP_Text scoreText;
+        [SerializeField] private TMP_Text timeText;
+        [SerializeField] private TMP_Text resultScoreText;
+        [SerializeField] private TMP_Text resultTimeText;
+        [SerializeField] private TMP_Text comboCountText;
+        [SerializeField] private Transform canvasTransform;
+        [SerializeField] private UGUILineRenderer lineRenderer;
+        private const float MessageDisplayDuration = 1f;
+        private const int DisplayedSolutionCount = 3;
 
-        public void UpdateFormulaText(string formulaText)
+        public IUniTaskAsyncEnumerable<AsyncUnit> BackButtonOnClickAsAsyncEnumerable()
         {
-            this.formulaText.text = formulaText;
-        }
-
-
-        public void DrawLine(Vector2 position1,Vector2 position2)
-        {
-            var positions = new []{position1, position2};
-            drawLine.SetPositions(positions);
-        }
-
-        public string GetFormulaText()
-        {
-            return formulaText.text;
-        }
-
-        public void HideEverything()
-        {
-            ClearLine();
-            HideOperators();
-        }
-        public void PuzzleInit()
-        {
-            titlePanel.SetActive(false);
-            HideEverything();
-            if (numberBoxes.Count != GameInitialData.Instance.diceCount)
-            {
-                diceAmountSlider.value = GameInitialData.Instance.diceCount;
-                diceMaxSlider.value = GameInitialData.Instance.maxDiceValue;
-
-                var numberOfDice = GameInitialData.Instance.diceCount;
-                numberBoxes.ForEach(x => Destroy(x.gameObject));
-                numberBoxes.Clear();
-                for (int i = 0; i < numberOfDice;i++)
-                {
-                    var let = 310;
-                    var theta = 360 / numberOfDice * i;
-                    Vector2 pos = new Vector2(Mathf.Sin(theta * Mathf.Deg2Rad) * let, Mathf.Cos(theta * Mathf.Deg2Rad) * let);
-                    if (i > numberOfDice / 2)
-                    {
-                        theta = 360 - theta;
-                        pos = new Vector2(-(Mathf.Sin(theta * Mathf.Deg2Rad) * let), Mathf.Cos(theta * Mathf.Deg2Rad) * let);
-                    }
-                
-                    var scale = 1 - (numberOfDice - 5) * 0.03f;
-                    var box = Instantiate(numberBoxPrefab,canvasT);
-                    box.transform.SetAsFirstSibling();
-                    answerBox.transform.SetAsFirstSibling();
-                    var rt = box.GetComponent<RectTransform>();
-                    rt.localScale = new Vector2(scale, scale);
-                    var numberBox = box.GetComponent<NumberBox>();
-                    numberBox.initialPosition = pos;
-                    numberBoxes.Add(numberBox);
-                }
-            }
-            numberBoxes.ForEach(box => box.ShowBox());
-            gameClearPanel.SetActive(false);
-            gameOverPanel.SetActive(false);
-            comboImage.SetActive(false);
-            restartButton.gameObject.SetActive(false);
-            scoreResultText.gameObject.SetActive(false);
-            formulaText.text = "";
+            return undoStepButton.OnClickAsAsyncEnumerable();
         }
 
         public void ClearLine()
         {
-            drawLine.SetPositions(new[]{Vector2.zero,Vector2.zero});
+            lineRenderer.SetPositions(new[] { Vector2.zero, Vector2.zero });
         }
 
-        public async UniTask ShowMessageAsync()
+        public void DrawLine(Vector2 startPoint, Vector2 endPoint)
         {
-            noticePanel.SetActive(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(1f));
-            noticePanel.SetActive(false);
+            var positions = new[] { startPoint, endPoint };
+            lineRenderer.SetPositions(positions);
         }
 
-        /// <summary>
-        /// タイマーの表示用テキストを更新する
-        /// </summary>
-        public void SetTimerText(float time)
+        public async UniTask EndGameAnimationAsync(bool isCleared, CancellationToken gameCt)
         {
-            timeText.text = $"じかん:{time:F2}";
-        }
-
-        /// <summary>
-        /// 演算記号を順々にアニメーションをつけて表示する
-        /// </summary>
-        /// <param name="canCalculate">それぞれの演算記号で計算可能か</param>
-        /// <param name="gameCt"></param>
-        private async UniTask ShowOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
-        {
-            for (var i = 0; i < 5; i++)
+            resultScoreText.text = $"ポイント:{GameState.Score}";
+            scoreText.text = $"ポイント:{GameState.Score}";
+            RectTransform rectTransform;
+            if (isCleared)
             {
-                operatorButtons[i].gameObject.SetActive(canCalculate[i]);
-                operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
-                await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f).ToUniTask(cancellationToken: gameCt);
+                rectTransform = gameClearPanel.GetComponent<RectTransform>();
+                gameClearPanel.SetActive(true);
+
+                resultTimeText.text = $"じかん:{GameState.CurrentTime.Value:F2}";
             }
+            else
+            {
+                rectTransform = gameOverPanel.GetComponent<RectTransform>();
+                gameOverPanel.SetActive(true);
+
+                solutionText.text = "Solutions:";
+
+                var randomSolutions = GetRandomElements(GameState.FormulaStrings,
+                    Mathf.Min(DisplayedSolutionCount, GameState.FormulaStrings.Count));
+                solutionText.text += string.Join("\n", randomSolutions);
+            }
+
+            rectTransform.localPosition = new Vector2(0, Screen.height);
+            await rectTransform.DOMove(Vector2.zero, 0.8f).ToUniTask(cancellationToken: gameCt);
+
+
+            resultScoreText.gameObject.SetActive(true);
+            restartButton.gameObject.SetActive(true);
+
+            if (isCleared)
+            {
+                comboCounterImage.SetActive(false);
+                comboCounterImage.transform.localScale = new Vector2(1.5f, 1.5f);
+                comboCountText.text = GameState.ComboCount.ToString();
+                comboCounterImage.SetActive(true);
+                await comboCounterImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken: gameCt);
+            }
+
+            await restartButton.OnClickAsync(gameCt);
         }
 
-        /// <summary>
-        /// 演算記号を順々にアニメーションをつけて隠す
-        /// </summary>
+        private List<T> GetRandomElements<T>(List<T> sourceList, int count)
+        {
+            var shuffledList = sourceList.OrderBy(_ => Guid.NewGuid()).ToList();
+            var result = shuffledList.Take(count).ToList();
+            return result;
+        }
+
+        public void HideAll()
+        {
+            ClearLine();
+            HideOperators();
+        }
+
         private void HideOperators()
         {
             foreach (var operatorButton in operatorButtons)
@@ -155,122 +125,140 @@ namespace Jamaica
             }
         }
 
-        /// <summary>
-        /// どれかの演算記号のボタンが押されるまで待つ
-        /// </summary>
-        /// <param name="canCalculate"></param>
-        /// <param name="gameCt"></param>
-        /// <returns>押された結果</returns>
-        public async UniTask<OperatorMark> SelectOperatorsAsync(bool[] canCalculate,CancellationToken gameCt)
+        public void InitializePuzzle()
         {
-            var operatorCts = new CancellationTokenSource();
-            var mergedCts = CancellationTokenSource.CreateLinkedTokenSource(gameCt, operatorCts.Token);
-            ShowOperatorsAsync(canCalculate,mergedCts.Token).Forget();
-        
-            var tasks = operatorButtons.Select(button => button.OnClickAsync(mergedCts.Token));
-            var result = await UniTask.WhenAny(tasks);
-        
-            operatorCts.Cancel();
-            HideOperators();
-            return (OperatorMark)result;
+            titlePanel.SetActive(false);
+            HideAll();
+
+            var diceCount = GameInitialData.Instance.diceCount;
+            diceCountSlider.value = diceCount;
+            diceMaxSlider.value = GameInitialData.Instance.maxDiceValue;
+
+            if (numberBoxes.Count != diceCount)
+            {
+                PlaceNumberBox(diceCount);
+            }
+
+            numberBoxes.ForEach(numberBox => numberBox.ShowBox());
+            gameClearPanel.SetActive(false);
+            gameOverPanel.SetActive(false);
+            comboCounterImage.SetActive(false);
+            restartButton.gameObject.SetActive(false);
+            resultScoreText.gameObject.SetActive(false);
+            formulaText.text = "";
         }
 
-        /// <summary>
-        /// ゲーム終了時のアニメション
-        /// </summary>
-        /// <param name="wasGameCleared">ゲームクリアだったらtrue,ゲームオーバーならfalse</param>
-        /// <param name="gameCt"></param>
-        public async UniTask GameFinishedAnimationAsync(bool wasGameCleared, CancellationToken gameCt)
+        private void PlaceNumberBox(int diceCount)
         {
-            scoreResultText.text = $"ポイント:{GameState.Score}";
-            scoreText.text = $"ポイント:{GameState.Score}";
-            RectTransform rt;
-            if (wasGameCleared)
+            numberBoxes.ForEach(numberBox => Destroy(numberBox.gameObject));
+            numberBoxes.Clear();
+            for (var i = 0; i < diceCount; i++)
             {
-                rt = gameClearPanel.GetComponent<RectTransform>();
-                gameClearPanel.SetActive(true);
-                timeResultText.text = $"じかん:{GameState.CurrentTime.Value:F2}";
-            }
-            else
-            {
-                rt = gameOverPanel.GetComponent<RectTransform>();
-                gameOverPanel.SetActive(true);
-                solutionText.text = "Solutions:\n";
-                var subscribed = new List<int>();
-                for (int i = 0; i < 3 && i < GameState.FormulaString.Count; i++)
+                const int let = 310;
+                var theta = 360 / diceCount * i;
+                var position = new Vector2(Mathf.Sin(theta * Mathf.Deg2Rad) * let,
+                    Mathf.Cos(theta * Mathf.Deg2Rad) * let);
+                if (i > diceCount / 2)
                 {
-                    var randomNum = Random.Range(0, GameState.FormulaString.Count);
-                    while (subscribed.Contains(randomNum))
-                    {
-                        randomNum = Random.Range(0, GameState.FormulaString.Count);
-                    }
-                    solutionText.text += $"{GameState.FormulaString[randomNum]}\n";
-                    subscribed.Add(randomNum);
+                    theta = 360 - theta;
+                    position = new Vector2(-(Mathf.Sin(theta * Mathf.Deg2Rad) * let),
+                        Mathf.Cos(theta * Mathf.Deg2Rad) * let);
                 }
-            }
-            rt.localPosition = new Vector2(0, Screen.height);
-            await rt.DOMove(Vector2.zero, 0.8f).ToUniTask(cancellationToken:gameCt);
 
-            if (wasGameCleared)
-            {
-                await UniTask.Delay(TimeSpan.FromSeconds(0.5f),cancellationToken:gameCt);
-                comboImage.SetActive(false);
-            }
-        
-            scoreResultText.gameObject.SetActive(true);
-            restartButton.gameObject.SetActive(true);
+                var scale = 1 - (diceCount - 5) * 0.03f;
 
-            if (wasGameCleared)
-            {
-                comboImage.transform.localScale = new Vector2(1.5f, 1.5f);
-                comboResultText.text = GameState.ComboCount.ToString();
-                comboImage.SetActive(true);
-                await comboImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken:gameCt);
+                var instantiatedNumberBox = Instantiate(numberBoxPrefab, canvasTransform);
+                instantiatedNumberBox.transform.SetAsFirstSibling();
+                var rectTransform = instantiatedNumberBox.GetComponent<RectTransform>();
+                rectTransform.localScale = new Vector2(scale, scale);
+                var numberBox = instantiatedNumberBox.GetComponent<NumberBox>();
+                numberBox.initialPosition = position;
+
+                numberBoxes.Add(numberBox);
             }
-        
-            await restartButton.OnClickAsync(gameCt);
+
+            answerNumberBox.transform.SetAsFirstSibling();
         }
-    
+
         public async UniTask RetireButtonOnClickAsync(CancellationToken gameCt)
         {
             await retireButton.OnClickAsync(gameCt);
         }
 
-        public IUniTaskAsyncEnumerable<AsyncUnit> BackButtonOnClickAsAsyncEnumerable()
+        public void SetTimerText(float time)
         {
-            return backStepButton.OnClickAsAsyncEnumerable();
+            timeText.text = $"じかん:{time:F2}";
+        }
+
+        public async UniTask ShowMessageAsync()
+        {
+            messagePanel.SetActive(true);
+            await UniTask.Delay(TimeSpan.FromSeconds(MessageDisplayDuration));
+            messagePanel.SetActive(false);
+        }
+
+        public void UpdateFormulaText(string formulaString)
+        {
+            formulaText.text = formulaString;
+        }
+
+        public async UniTask<OperatorMark> SelectOperatorAsync(bool[] isCalculable, CancellationToken gameCt)
+        {
+            var selectOperatorCts = new CancellationTokenSource();
+            var mergedCts = CancellationTokenSource.CreateLinkedTokenSource(gameCt, selectOperatorCts.Token);
+            ShowOperatorSymbolsAsync(isCalculable, mergedCts.Token).Forget();
+
+            var tasks = operatorButtons.Select(button => button.OnClickAsync(mergedCts.Token));
+            var result = await UniTask.WhenAny(tasks);
+
+            selectOperatorCts.Cancel();
+            HideOperators();
+            return (OperatorMark)result;
         }
 
         public IUniTaskAsyncEnumerable<AsyncUnit> SettingButtonOnClickAsAsyncEnumerable()
         {
-            return settingButton.OnClickAsAsyncEnumerable();
+            return settingsButton.OnClickAsAsyncEnumerable();
         }
 
-        public async UniTask SettingProgress(CancellationToken gameCt)
+        private async UniTask ShowOperatorSymbolsAsync(bool[] canCalculate, CancellationToken gameCt)
         {
-            using (diceAmountSlider.OnValueChangedAsObservable()
-                       .Subscribe(value => diceAmountValueText.text = value.ToString(CultureInfo.InvariantCulture)))
+            for (var i = 0; i < 5; i++)
             {
-                using (diceMaxSlider.OnValueChangedAsObservable()
-                           .Subscribe(value => diceMaxValueText.text = value.ToString(CultureInfo.InvariantCulture)))
+                operatorButtons[i].gameObject.SetActive(canCalculate[i]);
+                operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
+                await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f)
+                    .ToUniTask(cancellationToken: gameCt);
+            }
+        }
+
+        public async UniTask ProcessSettingsAsync(CancellationToken gameCt)
+        {
+            using (diceCountSlider.OnValueChangedAsAsyncEnumerable().Subscribe(value =>
+                       diceCountText.text = value.ToString(CultureInfo.InvariantCulture)))
+            {
+                using (diceMaxSlider.OnValueChangedAsAsyncEnumerable()
+                           .Subscribe(value => diceMaxText.text = value.ToString(CultureInfo.InvariantCulture)))
                 {
-                    settingPanel.SetActive(true);
+                    settingsPanel.SetActive(true);
+
+                    await exitSettingsButton.OnClickAsync(gameCt);
                     
-                    await settingBackButton.OnClickAsync(gameCt);
                     GameInitialData.Instance.maxDiceValue = (int)diceMaxSlider.value;
-                    GameInitialData.Instance.diceCount = (int)diceAmountSlider.value;
-                    settingPanel.SetActive(false);
+                    GameInitialData.Instance.diceCount = (int)diceCountSlider.value;
+                    
+                    settingsPanel.SetActive(false);
+                    
                     await PlayerDataManager.SavePlayerDataAsync(
                         new PlayerData(GameState.Score, GameState.ComboCount, GameInitialData.Instance.diceCount,
                             GameInitialData.Instance.maxDiceValue), gameCt);
                 }
             }
-        
         }
 
-        public async UniTask MoveToEqualAsync(NumberBox numberBox,CancellationToken gameCt)
+        public async UniTask MoveToCenterAsync(NumberBox numberBox, CancellationToken gameCt)
         {
-            await numberBox.MoveToEqualAsync(answerBox.GetComponent<RectTransform>().position,gameCt);
+            await numberBox.MoveToCenterAsync(answerNumberBox.GetComponent<RectTransform>().position, gameCt);
         }
     }
 }

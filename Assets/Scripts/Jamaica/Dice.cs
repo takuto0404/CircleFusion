@@ -6,11 +6,11 @@ namespace Jamaica
 {
     public class Dice
     {
+        public readonly AsyncReactiveProperty<bool> IsDiceRolled = new(false);
+        public readonly AsyncReactiveProperty<Dice> MergedDice = new(null);
         public readonly AsyncReactiveProperty<int> DiceNumber = new(-1);
         public bool IsAnswerDice;
         public bool IsActive = true;
-        public readonly AsyncReactiveProperty<Dice> MergedDice = new(null);
-        public readonly AsyncReactiveProperty<bool> IsDiceRolled = new(false);
         private const float UpdateIntervalInSeconds = 0.2f;
 
         //TODO:時間のテキストのサイズがおかしい
@@ -55,7 +55,7 @@ namespace Jamaica
             var maxDiceValue = GameInitialData.Instance.maxDiceValue;
             while (true)
             {
-                var randomNumber = UnityEngine.Random.Range(1,  + 1);
+                var randomNumber = UnityEngine.Random.Range(1, maxDiceValue + 1);
                 if (randomNumber != originalNumber)
                 {
                     return randomNumber;
