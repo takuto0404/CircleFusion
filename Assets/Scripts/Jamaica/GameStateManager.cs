@@ -34,7 +34,7 @@ namespace Jamaica
             GameInitialData.Instance.SetInformation(playerData.DiceMaxNumber, playerData.NumberOfDice);
             GameUIPresenter.Instance.InitializePuzzle();
             DiceCalculator.InitializePuzzle();
-            JamaicaHistory.PuzzleInit();
+            JamaicaHistory.InitializePuzzle();
         }
 
 
@@ -59,7 +59,7 @@ namespace Jamaica
 
             GameState.FormulaStrings = solutionInfo.solutionStrings;
 
-            JamaicaHistory.SetInitHist(DiceCalculator.GetAllDices());
+            JamaicaHistory.SetHist(DiceCalculator.GetAllDices(),"");
         }
 
         private static async UniTask PuzzleFlowAsync()

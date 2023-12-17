@@ -127,7 +127,7 @@ namespace Jamaica
 
         private void UndoStep()
         {
-            var step = JamaicaHistory.BackHist();
+            var step = JamaicaHistory.RewindHist();
             if (step == null) return;
             gameUIView.HideAll();
             DiceCalculator.UndoStep(step);

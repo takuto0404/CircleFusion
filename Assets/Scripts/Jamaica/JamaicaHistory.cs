@@ -4,36 +4,28 @@ namespace Jamaica
 {
     public static class JamaicaHistory
     {
-        /// <summary>
-        /// そのパズル上でどのようにボックスが動かされていったかの履歴
-        /// </summary>
         private static Stack<Hist> _histories;
 
-        public static void PuzzleInit()
+        public static Hist RewindHist()
         {
-            _histories = new Stack<Hist>();
+            if (_histories.Count == 1) return null;
+            _histories.Pop();
+            return LastHist();
         }
 
         public static Hist LastHist()
         {
             return _histories.Peek();
         }
-
-        public static void SetInitHist(List<Dice> dices)
+        
+        public static void InitializePuzzle()
         {
-            _histories.Push(new Hist(dices,""));
+            _histories = new Stack<Hist>();
         }
 
         public static void SetHist(List<Dice> dices, string formulaText)
         {
-            _histories.Push(new Hist(dices,formulaText));
-        }
-    
-        public static Hist BackHist()
-        {
-            if (_histories.Count == 1) return null;
-            _histories.Pop();
-            return _histories.Peek();
+            _histories.Push(new Hist(dices, formulaText));
         }
     }
 }
