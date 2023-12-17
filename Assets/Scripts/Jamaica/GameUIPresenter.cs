@@ -20,7 +20,7 @@ namespace Jamaica
             { OperatorMark.Plus, "+" },
             { OperatorMark.Minus, "-" },
             { OperatorMark.Times, "×" },
-            { OperatorMark.Devided, "÷" }
+            { OperatorMark.Devide, "÷" }
         };
 
         public void Calculation(NumberBox firstNumberBox, NumberBox secondNumberBox, OperatorMark operatorSymbol)

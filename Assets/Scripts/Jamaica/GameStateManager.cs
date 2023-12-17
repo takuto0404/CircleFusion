@@ -76,7 +76,7 @@ namespace Jamaica
                 CountTimerAsync(gameCts.Token).Forget();
 
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
-                var playerTask = PlayerController.Instance.PlayerBehavior(gameCts.Token);
+                var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
                 var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
                 var gameCompetitionTask =
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);

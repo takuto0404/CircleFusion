@@ -23,7 +23,7 @@ namespace Jamaica
             { OperatorMark.Plus, "+" },
             { OperatorMark.Minus, "-" },
             { OperatorMark.Times, "*" },
-            { OperatorMark.Devided, "/" },
+            { OperatorMark.Devide, "/" },
             { OperatorMark.None , ""}
         };
 
@@ -88,7 +88,7 @@ namespace Jamaica
                             }
                         }
 
-                        if (beforeFirstFormula.BeforeOperatorSymbol == OperatorMark.Devided && beforeSecondFormula.BeforeOperatorSymbol == OperatorMark.Times)
+                        if (beforeFirstFormula.BeforeOperatorSymbol == OperatorMark.Devide && beforeSecondFormula.BeforeOperatorSymbol == OperatorMark.Times)
                         {
                             continue;
                         }
@@ -134,7 +134,7 @@ namespace Jamaica
                 OperatorMark.Plus => firstNumber + secondNumber,
                 OperatorMark.Minus => firstNumber - secondNumber,
                 OperatorMark.Times => firstNumber * secondNumber,
-                OperatorMark.Devided => firstNumber / secondNumber,
+                OperatorMark.Devide => firstNumber / secondNumber,
                 _ => -1
             };
         }
@@ -148,7 +148,7 @@ namespace Jamaica
 
         private static void CreateFormulaText(FormulaInfo beforeFirstFormula,FormulaInfo beforeSecondFormula,FormulaInfo firstFormula,OperatorMark operatorSymbol)
         {
-            if (operatorSymbol is OperatorMark.Times or OperatorMark.Devided)
+            if (operatorSymbol is OperatorMark.Times or OperatorMark.Devide)
             {
                 firstFormula.SolutionString = beforeFirstFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Minus ? $"({beforeFirstFormula.SolutionString})" : beforeFirstFormula.SolutionString;
                 

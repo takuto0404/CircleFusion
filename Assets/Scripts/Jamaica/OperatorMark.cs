@@ -2,6 +2,6 @@ namespace Jamaica
 {
     public enum OperatorMark
     {
-        Plus = 0,Minus,Times,Devided,None
+        Plus = 0,Minus,Times,Devide,None
     }
 }

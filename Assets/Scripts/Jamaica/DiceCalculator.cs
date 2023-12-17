@@ -23,7 +23,7 @@ namespace Jamaica
                     return value1 - value2;
                 case OperatorMark.Times:
                     return value1 * value2;
-                case OperatorMark.Devided:
+                case OperatorMark.Devide:
                     return value1 / value2;
             }
 
