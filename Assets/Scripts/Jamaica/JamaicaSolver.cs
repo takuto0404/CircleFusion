@@ -1,147 +1,119 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Jamaica
 {
+    public class FormulaInfo
+    {
+        public FormulaInfo(int number,string solutionString,OperatorMark beforeOperatorSymbol)
+        {
+            Number = number;
+            SolutionString = solutionString;
+            BeforeOperatorSymbol = beforeOperatorSymbol;
+        }
+        public int Number;
+        public string SolutionString;
+        public OperatorMark BeforeOperatorSymbol;
+    }
     public static class JamaicaSolver
     {
-        /// <summary>
-        /// ソルブできるか、どのようにソルブできるかを試す
-        /// </summary>
-        /// <param name="dices">元々あるサイコロ</param>
-        /// <returns>ソルブ判定の結果を返すSolutionクラウs</returns>
-        private static readonly Stack<(int number, string text, int beforeOperatorMark)[]> DiceHist =
-            new Stack<(int number, string text, int beforeOperatorMark)[]>();
-
-        private static readonly Dictionary<int, string> OperatorDic = new Dictionary<int, string>()
+        private static readonly Dictionary<OperatorMark, string> OperatorDic = new()
         {
-            { 0, "+" },
-            { 1, "-" },
-            { 2, "*" },
-            { 3, "/" }
+            { OperatorMark.Plus, "+" },
+            { OperatorMark.Minus, "-" },
+            { OperatorMark.Times, "*" },
+            { OperatorMark.Devided, "/" },
+            { OperatorMark.None , ""}
         };
 
-        private static (int number, string text, int beforeOperatorMark)[] _dices;
+        private static readonly Stack<FormulaInfo[]> FormulaHist =
+            new();
+
+        private static FormulaInfo[] _originalDices;
         private static List<string> _solutions;
-        private static int _answer;
+        private static int _targetAnswer;
 
-
-        public static (bool isSolvable, List<string> solutionStrings) SolveJamaica(int answer, int[] diceNumbers)
+        public static (bool isSolvable, List<string> solutionStrings) SolveJamaica(int targetAnswer, int[] diceNumbers)
         {
             _solutions = new List<string>();
-            _dices = new (int number, string text, int beforeOperatorMark)[diceNumbers.Length];
-            for (int i = 0; i < diceNumbers.Length; i++)
-            {
-                _dices[i] = (diceNumbers[i], diceNumbers[i].ToString(), -1);
-            }
+            _originalDices = diceNumbers.Select(diceNumber => new FormulaInfo(diceNumber, diceNumber.ToString(), OperatorMark.None)).ToArray();
+            FormulaHist.Push(_originalDices);
+            _targetAnswer = targetAnswer;
 
-            DiceHist.Push(_dices);
-            JamaicaSolver._answer = answer;
             Solve();
-
             return (_solutions.Count > 0, _solutions);
         }
 
         private static void Solve()
         {
-            var last = DiceHist.Peek();
+            var lastFormula = FormulaHist.Peek();
             var subscribed1 = new List<int>();
-            for (int i = 0; i < _dices.Length; i++)
+            for (var i = 0; i < _originalDices.Length; i++)
             {
-                if (last[i].number == -1 || subscribed1.Contains(last[i].number)) continue;
-                subscribed1.Add(last[i].number);
+                if (lastFormula[i].Number == -1 || subscribed1.Contains(lastFormula[i].Number)) continue;
+                subscribed1.Add(lastFormula[i].Number);
                 var subscribed2 = new List<int>();
-                for (int j = 0; j < _dices.Length; j++)
+                for (var l = 0; l < _originalDices.Length; l++)
                 {
-                    if (i == j || last[j].number == -1 || last[i].number == -1 || subscribed2.Contains(last[i].number) ||
-                        last[i].number < last[j].number) continue;
-                    subscribed2.Add(last[i].number);
-                    for (int k = 0; k < 4; k++)
+                    if (i == l || lastFormula[l].Number == -1 || lastFormula[i].Number == -1 ||
+                        subscribed2.Contains(lastFormula[i].Number) ||
+                        lastFormula[i].Number < lastFormula[l].Number) continue;
+                    subscribed2.Add(lastFormula[i].Number);
+                    for (var operatorNumber = 0; operatorNumber < 4; operatorNumber++)
                     {
-                        var newArray = CopyArray(last);
-                        var oneBefore = newArray[i];
-                        var anotherOneBefore = newArray[j];
+                        var hist = CopyArray(lastFormula);
+                        var beforeFirstFormula = hist[i];
+                        var beforeSecondFormula = hist[l];
 
-                        var one = newArray[i];
-                        var anotherOne = newArray[j];
-                        var canCalculate = new bool[4]
+                        var firstFormula = hist[i];
+                        var secondFormula = hist[l];
+                        var isCalculable = new []
                         {
-                            true, one.number <= anotherOne.number, true,
-                            ((float)one.number / (float)anotherOne.number) % 1 == 0 && anotherOne.number != 0 &&
-                            anotherOne.number != 1
+                            true, firstFormula.Number <= secondFormula.Number, 
+                            true,
+                            (float)firstFormula.Number / (float)secondFormula.Number % 1 == 0 && secondFormula.Number != 0 &&
+                            secondFormula.Number != 1
                         };
 
-                        if (!canCalculate[k]) continue;
-                        if ((oneBefore.beforeOperatorMark is 0 or 2 && oneBefore.beforeOperatorMark == k) || (anotherOneBefore.beforeOperatorMark is 0 or 2 &&
-                                anotherOneBefore.beforeOperatorMark == k))
+                        if (!isCalculable[operatorNumber]) continue;
+                        
+                        if ((beforeFirstFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Times && beforeFirstFormula.BeforeOperatorSymbol == (OperatorMark)operatorNumber) ||
+                            (beforeSecondFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Times &&
+                             beforeSecondFormula.BeforeOperatorSymbol == (OperatorMark)operatorNumber))
                         {
-                            if (oneBefore.number < anotherOne.number)
+                            if (beforeFirstFormula.Number < secondFormula.Number)
                             {
                                 continue;
                             }
                         }
-                        if (oneBefore.beforeOperatorMark == 3 && anotherOneBefore.beforeOperatorMark == 2)
+
+                        if (beforeFirstFormula.BeforeOperatorSymbol == OperatorMark.Devided && beforeSecondFormula.BeforeOperatorSymbol == OperatorMark.Times)
                         {
                             continue;
                         }
 
-                        switch (k)
+                        firstFormula.Number = CalculateResult(firstFormula.Number, secondFormula.Number,
+                            (OperatorMark)operatorNumber);
+
+                        CreateFormulaText(beforeFirstFormula,beforeSecondFormula,firstFormula,(OperatorMark)operatorNumber);
+
+                        firstFormula.BeforeOperatorSymbol = (OperatorMark)operatorNumber;
+
+                        secondFormula.SolutionString = "";
+                        secondFormula.Number = -1;
+                        secondFormula.BeforeOperatorSymbol = OperatorMark.None;
+
+                        hist[i] = firstFormula;
+                        hist[l] = secondFormula;
+                        FormulaHist.Push(hist);
+
+                        var activeNumbers = hist.Where(x => x.Number != -1).ToArray();
+                        if (activeNumbers.Length == 1)
                         {
-                            case 0:
-                                one.number += anotherOne.number;
-                                break;
-                            case 1:
-                                one.number -= anotherOne.number;
-                                break;
-                            case 2:
-                                one.number *= anotherOne.number;
-                                break;
-                            case 3:
-                                one.number /= anotherOne.number;
-                                break;
-                        }
-
-                        if (k is 2 or 3)
-                        {
-                            if (oneBefore.beforeOperatorMark is 0 or 1 && anotherOneBefore.beforeOperatorMark is 0 or 1)
+                            if (activeNumbers.First().Number == _targetAnswer)
                             {
-                                one.text = $"({oneBefore.text}) {OperatorDic[k]} ({anotherOneBefore.text})";
-                            }
-                            else if (oneBefore.beforeOperatorMark is 0 or 1)
-                            {
-                                one.text = $"({oneBefore.text}) {OperatorDic[k]} {anotherOneBefore.text}";
-                            }
-                            else if (anotherOneBefore.beforeOperatorMark is 0 or 1)
-                            {
-                                one.text = $"{oneBefore.text} {OperatorDic[k]} ({anotherOneBefore.text})";
-                            }
-                            else
-                            {
-                                one.text = $"{oneBefore.text} {OperatorDic[k]} {anotherOneBefore.text}";
-                            }
-                        }
-                        else
-                        {
-                            one.text = $"{oneBefore.text} {OperatorDic[k]} {anotherOneBefore.text}";
-                        }
-
-
-                        one.beforeOperatorMark = k;
-
-                        anotherOne.text = "";
-                        anotherOne.number = -1;
-                        anotherOne.beforeOperatorMark = -1;
-
-                        newArray[i] = one;
-                        newArray[j] = anotherOne;
-                        DiceHist.Push(newArray);
-
-                        var activeList = newArray.Where(x => x.number != -1).ToArray();
-                        if (activeList.Length == 1)
-                        {
-                            if (activeList.First().number == _answer)
-                            {
-                                var text = $"{activeList.First().text} = {_answer}";
+                                var text = $"{activeNumbers.First().SolutionString} = {_targetAnswer}";
                                 if (_solutions.Contains(text)) continue;
                                 _solutions.Add(text);
                             }
@@ -149,23 +121,52 @@ namespace Jamaica
 
                         Solve();
 
-                        DiceHist.Pop();
+                        FormulaHist.Pop();
                     }
                 }
             }
         }
 
-        static (int number, string text, int beforeOperatorMark)[] CopyArray(
-            (int number, string text, int beforeOpeartorMark)[] array)
+        private static int CalculateResult(int firstNumber, int secondNumber, OperatorMark operatorMark)
         {
-            (int number, string text, int beforeOperatorMark)[] newArray =
-                new (int number, string text, int beforeOperatorMark)[array.Length];
-            for (int i = 0; i < array.Length; i++)
+            return operatorMark switch
             {
-                newArray[i] = array[i];
-            }
-
+                OperatorMark.Plus => firstNumber + secondNumber,
+                OperatorMark.Minus => firstNumber - secondNumber,
+                OperatorMark.Times => firstNumber * secondNumber,
+                OperatorMark.Devided => firstNumber / secondNumber,
+                _ => -1
+            };
+        }
+        
+        private static FormulaInfo[] CopyArray(FormulaInfo[] originalArray)
+        {
+            var newArray = new FormulaInfo[originalArray.Length];
+            Array.Copy(originalArray, newArray, originalArray.Length);
             return newArray;
+        }
+
+        private static void CreateFormulaText(FormulaInfo beforeFirstFormula,FormulaInfo beforeSecondFormula,FormulaInfo firstFormula,OperatorMark operatorSymbol)
+        {
+            if (operatorSymbol is OperatorMark.Times or OperatorMark.Devided)
+            {
+                firstFormula.SolutionString = beforeFirstFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Minus ? $"({beforeFirstFormula.SolutionString})" : beforeFirstFormula.SolutionString;
+                
+                firstFormula.SolutionString += OperatorDic[operatorSymbol];
+                
+                if (beforeSecondFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Minus)
+                {
+                    firstFormula.SolutionString += $"({beforeSecondFormula.SolutionString})";
+                }
+                else
+                {
+                    firstFormula.SolutionString += beforeSecondFormula.SolutionString;
+                }
+            }
+            else
+            {
+                firstFormula.SolutionString = $"{beforeFirstFormula.SolutionString} {OperatorDic[operatorSymbol]} {beforeSecondFormula.SolutionString}";
+            }
         }
     }
 }

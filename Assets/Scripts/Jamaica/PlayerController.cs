@@ -31,10 +31,10 @@ namespace Jamaica
                 {
                     NumberBox hoveredOne = null;
                     NumberBox hoveredAnotherOne = null;
-                    var operatorResult = OperatorMark.Return;
+                    var operatorResult = OperatorMark.None;
 
 
-                    while (operatorResult == OperatorMark.Return)
+                    while (operatorResult == OperatorMark.None)
                     {
                         hoveredAnotherOne = null;
                         while (hoveredAnotherOne == null)
