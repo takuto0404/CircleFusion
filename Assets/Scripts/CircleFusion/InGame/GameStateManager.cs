@@ -48,11 +48,14 @@ namespace Jamaica.InGame
                 await UniTask.WhenAll(rollTask, animationTask);
                 solutionInfo = JamaicaSolver.SolveJamaica(DiceCalculator.GetAnswerNumber(),
                     DiceCalculator.ExtractDiceNumbers());
+                
                 if (solutionInfo.isSolvable)
                 {
+                    Debug.Log("きた！");
                     break;
                 }
 
+                Debug.Log("まだ...");
                 await GameUIPresenter.Instance.ShowMessageAsync();
             }
 
@@ -78,6 +81,7 @@ namespace Jamaica.InGame
                 await PreparePuzzle(gameCts.Token);
                 CountTimerAsync(gameCts.Token).Forget();
 
+                Debug.Log("aiueo");
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
                 var gameCompetitionTask =

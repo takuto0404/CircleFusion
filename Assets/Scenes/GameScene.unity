@@ -738,14 +738,14 @@ MonoBehaviour:
   numberBoxes: []
   answerNumberBox: {fileID: 1708011303}
   diceMaxSlider: {fileID: 1360368223}
-  diceMaxText: {fileID: 832220391}
+  diceMaxText: {fileID: 2135162338}
   diceCountSlider: {fileID: 595104030}
-  diceCountText: {fileID: 423872459}
+  diceCountText: {fileID: 518442433}
   formulaText: {fileID: 2109021483}
   solutionText: {fileID: 772299070}
   scoreText: {fileID: 1234691014}
   timeText: {fileID: 1779262538}
-  resultScoreText: {fileID: 832220391}
+  resultScoreText: {fileID: 1707059797}
   resultTimeText: {fileID: 1703252040}
   comboCountText: {fileID: 1070295404}
   canvasTransform: {fileID: 109100513}
@@ -1943,7 +1943,7 @@ GameObject:
   - component: {fileID: 518442434}
   - component: {fileID: 518442433}
   m_Layer: 5
-  m_Name: DiceCountText
+  m_Name: DiceCountValueText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7199,7 +7199,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127c6435d53e470e827709bd65656f1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rollTime: 10
+  rollTime: 6
   maxDiceValue: 6
   diceCount: 5
 --- !u!4 &2108050454
@@ -7366,7 +7366,7 @@ GameObject:
   - component: {fileID: 2135162339}
   - component: {fileID: 2135162338}
   m_Layer: 5
-  m_Name: DiceMaxText
+  m_Name: DiceMaxValueText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

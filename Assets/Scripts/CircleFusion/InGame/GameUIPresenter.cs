@@ -12,7 +12,7 @@ namespace Jamaica.InGame
     public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     {
         [SerializeField] private GameUIView gameUIView;
-        private AsyncReactiveProperty<string> _formulaString;
+        private readonly AsyncReactiveProperty<string> _formulaString = new("");
         private Dictionary<Dice, NumberBox> _diceToNumberBoxMap = new();
         private Dictionary<NumberBox, Dice> _numberBoxToDiceMap = new();
 
@@ -60,8 +60,11 @@ namespace Jamaica.InGame
         public async UniTask EndRollAnimationAsync(CancellationToken gameCt)
         {
             var tasks = _diceToNumberBoxMap.ToList().Select(keyValue =>
-                keyValue.Key.IsDiceRolled.WithoutCurrent()
-                    .ForEachAwaitAsync(_ => keyValue.Value.EndRollAnimationAsync(gameCt), cancellationToken: gameCt));
+                UniTask.Create(async () =>
+                {
+                    await keyValue.Key.IsDiceRolled.WaitAsync(gameCt);
+                    await keyValue.Value.EndRollAnimationAsync(gameCt);
+                }));
             await UniTask.WhenAll(tasks);
         }
 
@@ -77,7 +80,8 @@ namespace Jamaica.InGame
                 .ForEachAsync(time => gameUIView.SetTimerText(time), cancellationToken: mergedCt);
             var undoProcedureTask = gameUIView.BackButtonOnClickAsAsyncEnumerable()
                 .ForEachAsync(_ => UndoStep(), cancellationToken: mergedCt);
-            var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable().ForEachAwaitAsync(_ => gameUIView.ProcessSettingsAsync(mergedCt), cancellationToken: mergedCt);
+            var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable()
+                .ForEachAwaitAsync(_ => gameUIView.ProcessSettingsAsync(mergedCt), cancellationToken: mergedCt);
             var hideNumberBoxTask = UniTask.WhenAll(DiceCalculator.GetAllDices().Select(dice =>
                 dice.MergedDice.Where(_ => !dice.IsActive).ForEachAwaitAsync(
                     mergedDice => _diceToNumberBoxMap[dice]
@@ -93,6 +97,7 @@ namespace Jamaica.InGame
 
         public void InitializePuzzle()
         {
+            _formulaString.Value = "";
             gameUIView.InitializePuzzle();
             _diceToNumberBoxMap = new Dictionary<Dice, NumberBox>();
             foreach (var numberBox in gameUIView.numberBoxes)
@@ -140,7 +145,9 @@ namespace Jamaica.InGame
 
         public async UniTask WaitForRetirementAsync(CancellationToken gameCt)
         {
+            Debug.Log("Retireまで...");
             await gameUIView.RetireButtonOnClickAsync(gameCt);
+            Debug.Log("Retire!");
         }
     }
 }
