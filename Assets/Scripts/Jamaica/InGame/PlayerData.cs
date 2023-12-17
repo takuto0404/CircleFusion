@@ -1,6 +1,6 @@
 using MemoryPack;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     [MemoryPackable]
     public partial class PlayerData

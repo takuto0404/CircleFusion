@@ -1,6 +1,7 @@
+using Jamaica.Share;
 using UnityEngine;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
     {

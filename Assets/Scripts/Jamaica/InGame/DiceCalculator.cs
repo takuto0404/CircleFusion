@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public static class DiceCalculator
     {

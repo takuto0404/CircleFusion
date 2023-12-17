@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class UGUILineRenderer : Graphic
     {

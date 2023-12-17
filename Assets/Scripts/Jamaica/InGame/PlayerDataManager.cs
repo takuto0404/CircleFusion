@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using MemoryPack;
 using UnityEngine;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public abstract class PlayerDataManager
     {

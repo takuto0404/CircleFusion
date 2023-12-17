@@ -1,9 +1,10 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Jamaica.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     {

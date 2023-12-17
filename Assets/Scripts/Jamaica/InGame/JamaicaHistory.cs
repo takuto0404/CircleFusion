@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public static class JamaicaHistory
     {

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class DiceInfoClass
     {

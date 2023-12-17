@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public static class GameState
     {

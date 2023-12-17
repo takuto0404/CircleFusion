@@ -10,7 +10,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class GameUIView : MonoBehaviour
     {

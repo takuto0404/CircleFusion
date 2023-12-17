@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Jamaica
+namespace Jamaica.Share
 {
     public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     {
@@ -24,22 +24,14 @@ namespace Jamaica
 
         protected virtual void Awake()
         {
-            // 他のGameObjectにアタッチされているか調べる.
-            // アタッチされている場合は破棄する.
             if (this != Instance)
             {
                 Destroy(this);
-                //Destroy(this.gameObject);
                 Debug.LogError(
                     typeof(T) +
                     " は既に他のGameObjectにアタッチされているため、コンポーネントを破棄しました." +
                     " アタッチされているGameObjectは " + Instance.gameObject.name + " です.");
-                return;
             }
-
-            // なんとかManager的なSceneを跨いでこのGameObjectを有効にしたい場合は
-            // ↓コメントアウト外してください.
-            //DontDestroyOnLoad(this.gameObject);
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public enum OperatorMark
     {

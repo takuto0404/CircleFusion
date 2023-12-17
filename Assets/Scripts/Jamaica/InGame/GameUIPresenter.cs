@@ -4,9 +4,10 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
+using Jamaica.Share;
 using UnityEngine;
 
-namespace Jamaica
+namespace Jamaica.InGame
 {
     public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     {
