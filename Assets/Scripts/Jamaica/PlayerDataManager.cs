@@ -6,11 +6,13 @@ using UnityEngine;
 
 namespace Jamaica
 {
-    public class PlayerDataManager
+    public abstract class PlayerDataManager
     {
-        public static PlayerData PlayerData;
-        private static string Path => Application.persistentDataPath;
+        private const int DefaultDiceCount = 5;
+        private const int DefaultDiceMax = 6;
         private const string FileName = "SaveData.txt";
+        private static string Path => Application.persistentDataPath;
+        public static PlayerData PlayerData;
         
         public static async UniTask SavePlayerDataAsync(PlayerData playerData, CancellationToken gameCt)
         {
@@ -28,7 +30,7 @@ namespace Jamaica
             }
             catch
             {
-                PlayerData = new PlayerData(0, 0, 5, 6);
+                PlayerData = new PlayerData(0, 0, DefaultDiceCount, DefaultDiceMax);
             }
         }
     }
