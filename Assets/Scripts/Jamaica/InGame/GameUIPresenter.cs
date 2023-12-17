@@ -59,9 +59,10 @@ namespace Jamaica.InGame
 
         public async UniTask EndRollAnimationAsync(CancellationToken gameCt)
         {
-            await UniTask.WhenAll(_diceToNumberBoxMap.ToList().Select(keyValue =>
-                keyValue.Key.IsDiceRolled.WithoutCurrent().ForEachAwaitAsync(async _ =>
-                    await keyValue.Value.EndRollAnimationAsync(gameCt), cancellationToken: gameCt)));
+            var tasks = _diceToNumberBoxMap.ToList().Select(keyValue =>
+                keyValue.Key.IsDiceRolled.WithoutCurrent()
+                    .ForEachAwaitAsync(_ => keyValue.Value.EndRollAnimationAsync(gameCt), cancellationToken: gameCt));
+            await UniTask.WhenAll(tasks);
         }
 
         public async UniTask HandlePuzzlePlayAsync(CancellationToken gameCt)
@@ -70,24 +71,22 @@ namespace Jamaica.InGame
             var mergedCt =
                 CancellationTokenSource.CreateLinkedTokenSource(gameCt, uiCts.Token).Token;
             var updateNumberBoxTask = UniTask.WhenAll(_diceToNumberBoxMap.Select(keyValue =>
-                keyValue.Key.DiceNumber.WithoutCurrent().ForEachAsync(number => keyValue.Value.SetNumberText(number),
-                    cancellationToken: mergedCt)));
+                keyValue.Key.DiceNumber.WithoutCurrent()
+                    .ForEachAsync(number => keyValue.Value.SetNumberText(number), cancellationToken: mergedCt)));
             var updateTimerTextTask = GameState.CurrentTime.WithoutCurrent()
                 .ForEachAsync(time => gameUIView.SetTimerText(time), cancellationToken: mergedCt);
             var undoProcedureTask = gameUIView.BackButtonOnClickAsAsyncEnumerable()
                 .ForEachAsync(_ => UndoStep(), cancellationToken: mergedCt);
-            var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable()
-                .ForEachAwaitAsync(async _ => await gameUIView.ProcessSettingsAsync(mergedCt), cancellationToken: mergedCt);
-            var hideNumberBoxTask = UniTask.WhenAll(DiceCalculator.GetAllDices().Select(dice => dice.MergedDice
-                .Where(_ => !dice.IsActive)
-                .ForEachAwaitAsync(
-                    async mergedDice => await _diceToNumberBoxMap[dice]
+            var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable().ForEachAwaitAsync(_ => gameUIView.ProcessSettingsAsync(mergedCt), cancellationToken: mergedCt);
+            var hideNumberBoxTask = UniTask.WhenAll(DiceCalculator.GetAllDices().Select(dice =>
+                dice.MergedDice.Where(_ => !dice.IsActive).ForEachAwaitAsync(
+                    mergedDice => _diceToNumberBoxMap[dice]
                         .MergeAsync(_diceToNumberBoxMap[mergedDice].GetComponent<RectTransform>().position, mergedCt),
                     cancellationToken: mergedCt)));
             var updateFormulaTextTask = _formulaString.WithoutCurrent()
                 .ForEachAsync(text => gameUIView.UpdateFormulaText(text), cancellationToken: mergedCt);
             await UniTask.WhenAny(UniTask.WaitUntilCanceled(mergedCt), updateNumberBoxTask, updateTimerTextTask,
-                undoProcedureTask, openSettingsTask, hideNumberBoxTask);
+                undoProcedureTask, openSettingsTask, hideNumberBoxTask, updateFormulaTextTask);
 
             uiCts.Cancel();
         }

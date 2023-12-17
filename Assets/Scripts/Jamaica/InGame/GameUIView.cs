@@ -133,7 +133,7 @@ namespace Jamaica.InGame
             var diceCount = GameInitialData.Instance.diceCount;
             diceCountSlider.value = diceCount;
             diceMaxSlider.value = GameInitialData.Instance.maxDiceValue;
-
+            
             if (numberBoxes.Count != diceCount)
             {
                 PlaceNumberBox(diceCount);

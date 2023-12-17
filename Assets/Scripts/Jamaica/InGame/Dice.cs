@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
+using UnityEngine;
 
 namespace Jamaica.InGame
 {
@@ -11,7 +13,7 @@ namespace Jamaica.InGame
         public readonly AsyncReactiveProperty<int> DiceNumber = new(-1);
         public bool IsAnswerDice;
         public bool IsActive = true;
-        private const float UpdateIntervalInSeconds = 0.2f;
+        private const float RollIntervalInSeconds = 0.04f;
 
         //TODO:時間のテキストのサイズがおかしい
         //TODO:Returnボタンが消えない
@@ -33,7 +35,7 @@ namespace Jamaica.InGame
                     randomPair = (RollDifferentNumber(randomPair.tensPlace),
                         RollDifferentNumber(randomPair.unitsPlace));
                     DiceNumber.Value = randomPair.tensPlace * 10 + randomPair.unitsPlace;
-                    await UniTask.Delay(TimeSpan.FromSeconds(UpdateIntervalInSeconds), cancellationToken: gameCt);
+                    await UniTask.Delay(TimeSpan.FromSeconds(RollIntervalInSeconds), cancellationToken: gameCt);
                 }
                 IsDiceRolled.Value = true;
             }
@@ -44,7 +46,7 @@ namespace Jamaica.InGame
                 {
                     randomNumber = RollDifferentNumber(randomNumber);
                     DiceNumber.Value = randomNumber;
-                    await UniTask.Delay(TimeSpan.FromSeconds(UpdateIntervalInSeconds), cancellationToken: gameCt);
+                    await UniTask.Delay(TimeSpan.FromSeconds(RollIntervalInSeconds), cancellationToken: gameCt);
                 }
                 IsDiceRolled.Value = true;
             }

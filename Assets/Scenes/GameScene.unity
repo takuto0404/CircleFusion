@@ -633,7 +633,7 @@ GameObject:
   - component: {fileID: 48788393}
   - component: {fileID: 48788394}
   m_Layer: 0
-  m_Name: DrawLine
+  m_Name: LineRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -717,39 +717,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1003d9013d2849c893de7b86cb7ca333, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backStepButton: {fileID: 1219462974}
-  solutionText: {fileID: 772299070}
-  answerBox: {fileID: 1708011303}
-  titlePanel: {fileID: 669162460}
-  numberBoxes: []
+  exitSettingsButton: {fileID: 641883868}
   retireButton: {fileID: 1968924006}
-  comboImage: {fileID: 1357739192}
   restartButton: {fileID: 609455600}
-  formulaText: {fileID: 2109021483}
-  noticePanel: {fileID: 1399788656}
-  scoreText: {fileID: 1234691014}
-  timeText: {fileID: 1779262538}
+  settingsButton: {fileID: 573579289}
+  undoStepButton: {fileID: 1219462974}
+  comboCounterImage: {fileID: 1357739192}
+  messagePanel: {fileID: 1399788656}
   gameClearPanel: {fileID: 1824927789}
   gameOverPanel: {fileID: 1593206676}
-  scoreResultText: {fileID: 1707059797}
-  timeResultText: {fileID: 1703252040}
-  comboResultText: {fileID: 1070295404}
+  numberBoxPrefab: {fileID: 3839451270845798424, guid: 69ee42116d1a446c5b66964684994af4, type: 3}
+  settingsPanel: {fileID: 184028750}
+  titlePanel: {fileID: 669162460}
   operatorButtons:
   - {fileID: 1770744963}
   - {fileID: 1748188722}
   - {fileID: 261478496}
   - {fileID: 2064662242}
   - {fileID: 299523552}
-  drawLine: {fileID: 48788393}
-  settingButton: {fileID: 573579289}
-  settingPanel: {fileID: 184028750}
+  numberBoxes: []
+  answerNumberBox: {fileID: 1708011303}
   diceMaxSlider: {fileID: 1360368223}
-  diceAmountSlider: {fileID: 595104030}
-  settingBackButton: {fileID: 641883868}
-  numberBoxPrefab: {fileID: 3839451270845798424, guid: 69ee42116d1a446c5b66964684994af4, type: 3}
-  canvasT: {fileID: 109100513}
-  diceMaxValueText: {fileID: 2135162338}
-  diceAmountValueText: {fileID: 518442433}
+  diceMaxText: {fileID: 832220391}
+  diceCountSlider: {fileID: 595104030}
+  diceCountText: {fileID: 423872459}
+  formulaText: {fileID: 2109021483}
+  solutionText: {fileID: 772299070}
+  scoreText: {fileID: 1234691014}
+  timeText: {fileID: 1779262538}
+  resultScoreText: {fileID: 832220391}
+  resultTimeText: {fileID: 1703252040}
+  comboCountText: {fileID: 1070295404}
+  canvasTransform: {fileID: 109100513}
+  lineRenderer: {fileID: 48788393}
 --- !u!114 &68961312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1521,7 +1521,7 @@ GameObject:
   - component: {fileID: 476562480}
   - component: {fileID: 476562479}
   m_Layer: 5
-  m_Name: TitleText (1)
+  m_Name: Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2297,7 +2297,7 @@ GameObject:
   - component: {fileID: 557176644}
   - component: {fileID: 557176643}
   m_Layer: 5
-  m_Name: MessagePanel
+  m_Name: MessageText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2553,7 +2553,7 @@ GameObject:
   - component: {fileID: 595104029}
   - component: {fileID: 595104030}
   m_Layer: 5
-  m_Name: DiceAmountSlider
+  m_Name: DiceCountSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2889,7 +2889,7 @@ GameObject:
   - component: {fileID: 658420463}
   - component: {fileID: 658420462}
   m_Layer: 5
-  m_Name: ComboText2
+  m_Name: ComboText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4126,7 +4126,7 @@ GameObject:
   - component: {fileID: 1070295405}
   - component: {fileID: 1070295404}
   m_Layer: 5
-  m_Name: ComboText1
+  m_Name: ComboCounterText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5036,7 +5036,7 @@ GameObject:
   - component: {fileID: 1357739195}
   - component: {fileID: 1357739194}
   m_Layer: 5
-  m_Name: ComboCountImage
+  m_Name: ComboCounterImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5049,7 +5049,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1357739192}
-  m_LocalRotation: {x: 0, y: 0, z: -0.13052624, w: 0.9914449}
+  m_LocalRotation: {x: 0, y: -0, z: -0.13052624, w: 0.9914449}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -5821,9 +5821,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126523806a74451ea69493d20d7b9c70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialPosition: {x: 0, y: 0}
-  numberText: {fileID: 1045378610}
   isAnswerBox: 1
+  numberText: {fileID: 1045378610}
+  initialPosition: {x: 0, y: 0}
 --- !u!1 &1712001642
 GameObject:
   m_ObjectHideFlags: 0
@@ -7199,9 +7199,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 127c6435d53e470e827709bd65656f1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shuffleLength: 5
-  diceMaxValue: 6
-  numberOfDice: 5
+  rollTime: 10
+  maxDiceValue: 6
+  diceCount: 5
 --- !u!4 &2108050454
 Transform:
   m_ObjectHideFlags: 0
@@ -7210,7 +7210,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2108050452}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1041.7661, y: 767.0001, z: -9.229482}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

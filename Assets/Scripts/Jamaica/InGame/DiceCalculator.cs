@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace Jamaica.InGame
 {
@@ -15,19 +16,14 @@ namespace Jamaica.InGame
         {
             var value1 = firstDice.DiceNumber.Value;
             var value2 = secondDice.DiceNumber.Value;
-            switch (operatorSymbol)
+            return operatorSymbol switch
             {
-                case OperatorMark.Plus:
-                    return value1 + value2;
-                case OperatorMark.Minus:
-                    return value1 - value2;
-                case OperatorMark.Times:
-                    return value1 * value2;
-                case OperatorMark.Devide:
-                    return value1 / value2;
-            }
-
-            return -1;
+                OperatorMark.Plus => value1 + value2,
+                OperatorMark.Minus => value1 - value2,
+                OperatorMark.Times => value1 * value2,
+                OperatorMark.Devide => value1 / value2,
+                _ => -1
+            };
         }
         
         public static int[] ExtractDiceNumbers()

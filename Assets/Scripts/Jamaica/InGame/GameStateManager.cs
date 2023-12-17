@@ -40,7 +40,6 @@ namespace Jamaica.InGame
 
         private static async UniTask PreparePuzzle(CancellationToken gameCt)
         {
-            InitializePuzzle();
             (bool isSolvable, List<string> solutionStrings) solutionInfo;
             while (true)
             {
@@ -71,13 +70,16 @@ namespace Jamaica.InGame
             while (true)
             {
                 var gameCts = new CancellationTokenSource();
+                
+                InitializePuzzle();
+                
+                var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
+                
                 await PreparePuzzle(gameCts.Token);
-
                 CountTimerAsync(gameCts.Token).Forget();
 
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
-                var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
                 var gameCompetitionTask =
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
