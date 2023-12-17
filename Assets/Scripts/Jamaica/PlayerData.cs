@@ -1,4 +1,3 @@
-using System;
 using MemoryPack;
 
 namespace Jamaica
@@ -6,16 +5,16 @@ namespace Jamaica
     [MemoryPackable]
     public partial class PlayerData
     {
-        public PlayerData(int score, int combo, int numberOfDice, int diceMaxNumber)
+        public PlayerData(int score, int comboCount, int diceCount, int diceMax)
         {
             Score = score;
-            Combo = combo;
-            NumberOfDice = numberOfDice;
-            DiceMaxNumber = diceMaxNumber;
+            ComboCount = comboCount;
+            DiceCount = diceCount;
+            DiceMax = diceMax;
         }
+        public readonly int ComboCount;
+        public readonly int DiceCount;
+        public readonly int DiceMax;
         public readonly int Score;
-        public readonly int Combo;
-        public readonly int NumberOfDice;
-        public readonly int DiceMaxNumber;
     }
 }

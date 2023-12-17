@@ -30,8 +30,8 @@ namespace Jamaica
         private static void InitializePuzzle()
         {
             var playerData = PlayerDataManager.PlayerData;
-            GameState.InitializePuzzle(playerData.Combo, playerData.Score);
-            GameInitialData.Instance.SetInformation(playerData.DiceMaxNumber, playerData.NumberOfDice);
+            GameState.InitializePuzzle(playerData.ComboCount, playerData.Score);
+            GameInitialData.Instance.SetInformation(playerData.DiceMax, playerData.DiceCount);
             GameUIPresenter.Instance.InitializePuzzle();
             DiceCalculator.InitializePuzzle();
             JamaicaHistory.InitializePuzzle();
