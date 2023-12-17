@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using MemoryPack;
 using UnityEngine;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public abstract class PlayerDataManager
     {

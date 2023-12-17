@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
-    public static class JamaicaHistory
+    public static class PuzzleHistory
     {
         private static Stack<Hist> _histories;
 

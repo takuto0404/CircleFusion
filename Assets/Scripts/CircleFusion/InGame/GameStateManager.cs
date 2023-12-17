@@ -4,7 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public static class GameStateManager
     {
@@ -34,7 +34,7 @@ namespace Jamaica.InGame
             GameInitialData.Instance.SetInformation(playerData.DiceMax, playerData.DiceCount);
             GameUIPresenter.Instance.InitializePuzzle();
             DiceCalculator.InitializePuzzle();
-            JamaicaHistory.InitializePuzzle();
+            PuzzleHistory.InitializePuzzle();
         }
 
 
@@ -46,7 +46,7 @@ namespace Jamaica.InGame
                 var rollTask = DiceCalculator.RollDiceAsync(gameCt);
                 var animationTask = GameUIPresenter.Instance.EndRollAnimationAsync(gameCt);
                 await UniTask.WhenAll(rollTask, animationTask);
-                solutionInfo = JamaicaSolver.SolveJamaica(DiceCalculator.GetAnswerNumber(),
+                solutionInfo = PuzzleSolver.SolvePuzzle(DiceCalculator.GetAnswerNumber(),
                     DiceCalculator.ExtractDiceNumbers());
                 
                 if (solutionInfo.isSolvable)
@@ -61,7 +61,7 @@ namespace Jamaica.InGame
 
             GameState.FormulaStrings = solutionInfo.solutionStrings;
 
-            JamaicaHistory.SetHist(DiceCalculator.GetAllDices(),"");
+            PuzzleHistory.SetHist(DiceCalculator.GetAllDices(),"");
         }
 
         private static async UniTask PuzzleFlowAsync()

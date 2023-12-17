@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CircleFusion.Share;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
-using Jamaica.Share;
 using UnityEngine;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class GameUIPresenter : SingletonMonoBehaviour<GameUIPresenter>
     {
@@ -132,7 +132,7 @@ namespace Jamaica.InGame
 
         private void UndoStep()
         {
-            var step = JamaicaHistory.RewindHist();
+            var step = PuzzleHistory.RewindHist();
             if (step == null) return;
             gameUIView.HideAll();
             DiceCalculator.UndoStep(step);

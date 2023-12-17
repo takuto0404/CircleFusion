@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Jamaica.Share
+namespace CircleFusion.Share
 {
     public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     {

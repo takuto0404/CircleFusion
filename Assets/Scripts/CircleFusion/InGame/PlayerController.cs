@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using CircleFusion.Share;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Linq;
-using Jamaica.Share;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class PlayerController : SingletonMonoBehaviour<PlayerController>
     {
@@ -75,9 +75,9 @@ namespace Jamaica.InGame
                     }
                     gameUIView.ClearLine();
                     GameUIPresenter.Instance.Calculation(firstNumberBox, secondNumberBox, selectedOperator);
-                    JamaicaHistory.SetHist(DiceCalculator.GetAllDices(), 
+                    PuzzleHistory.SetHist(DiceCalculator.GetAllDices(), 
                         GameUIPresenter.Instance.CreateFormulaText(DiceCalculator.FetchCurrentFormula()));
-                    GameUIPresenter.Instance.UpdateFormulaText(JamaicaHistory.LastHist().FormulaText);
+                    GameUIPresenter.Instance.UpdateFormulaText(PuzzleHistory.LastHist().FormulaText);
                 }
             }
             catch (OperationCanceledException e)

@@ -1,6 +1,6 @@
 using MemoryPack;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     [MemoryPackable]
     public partial class PlayerData

@@ -1,4 +1,4 @@
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public enum OperatorMark
     {

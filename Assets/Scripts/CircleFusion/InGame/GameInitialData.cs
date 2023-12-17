@@ -1,7 +1,7 @@
-using Jamaica.Share;
+using CircleFusion.Share;
 using UnityEngine;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class GameInitialData : SingletonMonoBehaviour<GameInitialData>
     {

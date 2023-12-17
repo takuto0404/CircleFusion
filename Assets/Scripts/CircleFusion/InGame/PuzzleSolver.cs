@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class FormulaInfo
     {
@@ -16,7 +16,7 @@ namespace Jamaica.InGame
         public string SolutionString;
         public OperatorMark BeforeOperatorSymbol;
     }
-    public static class JamaicaSolver
+    public static class PuzzleSolver
     {
         private static readonly Dictionary<OperatorMark, string> OperatorDic = new()
         {
@@ -34,7 +34,7 @@ namespace Jamaica.InGame
         private static List<string> _solutions;
         private static int _targetAnswer;
 
-        public static (bool isSolvable, List<string> solutionStrings) SolveJamaica(int targetAnswer, int[] diceNumbers)
+        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer, int[] diceNumbers)
         {
             _solutions = new List<string>();
             _originalDices = diceNumbers.Select(diceNumber => new FormulaInfo(diceNumber, diceNumber.ToString(), OperatorMark.None)).ToArray();

@@ -1,10 +1,10 @@
 using System.Threading;
+using CircleFusion.Share;
 using Cysharp.Threading.Tasks;
-using Jamaica.Share;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class MouseInputProvider : SingletonMonoBehaviour<MouseInputProvider>
     {

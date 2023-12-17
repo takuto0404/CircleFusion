@@ -1,10 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Linq;
-using UnityEngine;
 
-namespace Jamaica.InGame
+namespace CircleFusion.InGame
 {
     public class Dice
     {
