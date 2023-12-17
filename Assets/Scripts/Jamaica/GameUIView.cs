@@ -139,7 +139,7 @@ namespace Jamaica
                 PlaceNumberBox(diceCount);
             }
 
-            numberBoxes.ForEach(numberBox => numberBox.ShowBox());
+            numberBoxes.ForEach(numberBox => numberBox.ShowNumberBox());
             gameClearPanel.SetActive(false);
             gameOverPanel.SetActive(false);
             comboCounterImage.SetActive(false);

@@ -60,7 +60,7 @@ namespace Jamaica
         {
             await UniTask.WhenAll(_diceToNumberBoxMap.ToList().Select(keyValue =>
                 keyValue.Key.IsDiceRolled.WithoutCurrent().ForEachAwaitAsync(async _ =>
-                    await keyValue.Value.FinishedShuffleAnimationAsync(gameCt), cancellationToken: gameCt)));
+                    await keyValue.Value.EndRollAnimationAsync(gameCt), cancellationToken: gameCt)));
         }
 
         public async UniTask HandlePuzzlePlayAsync(CancellationToken gameCt)
@@ -81,7 +81,7 @@ namespace Jamaica
                 .Where(_ => !dice.IsActive)
                 .ForEachAwaitAsync(
                     async mergedDice => await _diceToNumberBoxMap[dice]
-                        .HideBoxAsync(_diceToNumberBoxMap[mergedDice].GetComponent<RectTransform>().position, mergedCt),
+                        .MergeAsync(_diceToNumberBoxMap[mergedDice].GetComponent<RectTransform>().position, mergedCt),
                     cancellationToken: mergedCt)));
             var updateFormulaTextTask = _formulaString.WithoutCurrent()
                 .ForEachAsync(text => gameUIView.UpdateFormulaText(text), cancellationToken: mergedCt);
@@ -134,7 +134,7 @@ namespace Jamaica
             UpdateFormulaText(step.FormulaText);
             _diceToNumberBoxMap.ToList().ForEach(keyValue =>
             {
-                if (keyValue.Key.IsActive) keyValue.Value.ShowBox();
+                if (keyValue.Key.IsActive) keyValue.Value.ShowNumberBox();
             });
         }
 
