@@ -46,14 +46,12 @@ namespace CircleFusion.InGame
                 var rollTask = DiceCalculator.RollDiceAsync(gameCt);
                 var animationTask = GameUIPresenter.Instance.EndRollAnimationAsync(gameCt);
                 await UniTask.WhenAll(rollTask, animationTask);
-                solutionInfo = PuzzleSolver.SolvePuzzle(DiceCalculator.GetAnswerNumber(),
-                    DiceCalculator.ExtractDiceNumbers());
-                
+
+                solutionInfo = await rollTask;
                 if (solutionInfo.isSolvable) break;
                 
                 await GameUIPresenter.Instance.ShowMessageAsync();
             }
-
             GameState.FormulaStrings = solutionInfo.solutionStrings;
 
             PuzzleHistory.SetHist(DiceCalculator.GetAllDices(),"");

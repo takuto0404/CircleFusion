@@ -9,6 +9,16 @@ namespace CircleFusion.InGame
         public Vector2[] positions = { };
         [SerializeField] private float weight;
 
+        public void ClearLine()
+        {
+            SetPositions(new[] { Vector2.zero, Vector2.zero });
+        }
+
+        public void DrawLine(Vector2 startPoint, Vector2 endPoint)
+        {
+            SetPositions(new[] { startPoint, endPoint });
+        }
+
         public void SetPositions(Vector2[] newPositions)
         {
             rectTransform.localPosition = Vector3.zero;

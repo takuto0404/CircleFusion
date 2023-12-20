@@ -50,17 +50,6 @@ namespace CircleFusion.InGame
             return undoStepButton.OnClickAsAsyncEnumerable();
         }
 
-        public void ClearLine()
-        {
-            lineRenderer.SetPositions(new[] { Vector2.zero, Vector2.zero });
-        }
-
-        public void DrawLine(Vector2 startPoint, Vector2 endPoint)
-        {
-            var positions = new[] { startPoint, endPoint };
-            lineRenderer.SetPositions(positions);
-        }
-
         public async UniTask EndGameAnimationAsync(bool isCleared, CancellationToken gameCt)
         {
             resultScoreText.text = $"ポイント:{GameState.Score}";
@@ -113,7 +102,7 @@ namespace CircleFusion.InGame
 
         public void HideAll()
         {
-            ClearLine();
+            lineRenderer.ClearLine();
             HideOperators();
         }
 
@@ -251,10 +240,6 @@ namespace CircleFusion.InGame
                     GameInitialData.Instance.diceCount = (int)diceCountSlider.value;
                     
                     settingsPanel.SetActive(false);
-                    
-                    await PlayerDataManager.SavePlayerDataAsync(
-                        new PlayerData(GameState.Score, GameState.ComboCount, GameInitialData.Instance.diceCount,
-                            GameInitialData.Instance.maxDiceValue), gameCt);
                 }
             }
         }

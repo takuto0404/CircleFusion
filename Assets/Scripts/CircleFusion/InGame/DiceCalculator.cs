@@ -73,12 +73,13 @@ namespace CircleFusion.InGame
             secondDice.MergedDice.Value = firstDice;
         }
 
-        public static async UniTask RollDiceAsync(CancellationToken gameCt)
+        public static async UniTask<(bool isSolvable,List<string> solutionStrings)> RollDiceAsync(CancellationToken gameCt)
         {
             var shuffleTasks = _dices.Select((dice, i) =>
                 dice.RollDiceAsync(i + 1, gameCt)).ToList();
             shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, gameCt));
             await UniTask.WhenAll(shuffleTasks);
+            return PuzzleSolver.SolvePuzzle(GetAnswerNumber(), ExtractDiceNumbers());
         }
         
         public static void SetDice(List<Dice> dices, Dice answerDice)
@@ -88,11 +89,11 @@ namespace CircleFusion.InGame
             _answerDice.IsAnswerDice = true;
         }
 
-        public static void UndoStep(Hist lastHistory)
+        public static void UndoStep(List<DiceInfoClass> dices)
         {
             for (var i = 0; i < _dices.Count; i++)
             {
-                var diceInfo = lastHistory.Dices[i].DiceInfo;
+                var diceInfo = dices[i].DiceInfo;
                 _dices[i].DiceNumber.Value = diceInfo.diceNumber;
                 _dices[i].IsActive = diceInfo.isActive;
             }

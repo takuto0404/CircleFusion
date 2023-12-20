@@ -81,7 +81,13 @@ namespace CircleFusion.InGame
             var undoProcedureTask = gameUIView.BackButtonOnClickAsAsyncEnumerable()
                 .ForEachAsync(_ => UndoStep(), cancellationToken: mergedCt);
             var openSettingsTask = gameUIView.SettingButtonOnClickAsAsyncEnumerable()
-                .ForEachAwaitAsync(_ => gameUIView.ProcessSettingsAsync(mergedCt), cancellationToken: mergedCt);
+                .ForEachAwaitAsync(async _ =>
+                {
+                    await gameUIView.ProcessSettingsAsync(mergedCt);
+                    await PlayerDataManager.SavePlayerDataAsync(
+                        new PlayerData(GameState.Score, GameState.ComboCount, GameInitialData.Instance.diceCount,
+                            GameInitialData.Instance.maxDiceValue), gameCt);
+                }, cancellationToken: mergedCt);
             var hideNumberBoxTask = UniTask.WhenAll(DiceCalculator.GetAllDices().Select(dice =>
                 dice.MergedDice.Where(_ => !dice.IsActive).ForEachAwaitAsync(
                     mergedDice => _diceToNumberBoxMap[dice]
@@ -120,6 +126,11 @@ namespace CircleFusion.InGame
             await gameUIView.MoveToCenterAsync(_diceToNumberBoxMap[DiceCalculator.GetLastDice()], gameCt);
         }
 
+        public async UniTask<OperatorSymbol> SelectOperatorAsync(bool[] isCalculable,CancellationToken gameCt)
+        {
+            return await gameUIView.SelectOperatorAsync(isCalculable, gameCt);
+        }
+
         public async UniTask ShowMessageAsync()
         {
             await gameUIView.ShowMessageAsync();
@@ -135,7 +146,7 @@ namespace CircleFusion.InGame
             var step = PuzzleHistory.RewindHist();
             if (step == null) return;
             gameUIView.HideAll();
-            DiceCalculator.UndoStep(step);
+            DiceCalculator.UndoStep(step.Dices);
             UpdateFormulaText(step.FormulaText);
             _diceToNumberBoxMap.ToList().ForEach(keyValue =>
             {

@@ -12,7 +12,7 @@ namespace CircleFusion.InGame
 {
     public class PlayerController : SingletonMonoBehaviour<PlayerController>
     {
-        [SerializeField] private GameUIView gameUIView;
+        [SerializeField] private UGUILineRenderer lineRenderer;
 
         private static Vector2 AlignPosition(Vector2 position)
         {
@@ -47,7 +47,7 @@ namespace CircleFusion.InGame
                         secondNumberBox = null;
                         while (secondNumberBox == null)
                         {
-                            gameUIView.ClearLine();
+                            lineRenderer.ClearLine();
                             firstNumberBox = null;
                             while (firstNumberBox == null)
                             {
@@ -57,7 +57,7 @@ namespace CircleFusion.InGame
 
                             var boxInitialPosition = firstNumberBox.initialPosition;
                             using (UniTaskAsyncEnumerable.EveryUpdate().Subscribe(_ =>
-                                       gameUIView.DrawLine(AlignPosition(boxInitialPosition),
+                                       lineRenderer.DrawLine(AlignPosition(boxInitialPosition),
                                            MouseInputProvider.Instance.mousePosition)))
                             {
                                 await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
@@ -67,13 +67,13 @@ namespace CircleFusion.InGame
                         
                         if(firstNumberBox == secondNumberBox)continue;
 
-                        gameUIView.DrawLine(AlignPosition(firstNumberBox.initialPosition),
+                        lineRenderer.DrawLine(AlignPosition(firstNumberBox.initialPosition),
                             AlignPosition(secondNumberBox.initialPosition));
                         var isCalculable =
                             GameUIPresenter.Instance.CheckCalculations(firstNumberBox, secondNumberBox);
-                        selectedOperator = await gameUIView.SelectOperatorAsync(isCalculable, gameCt);
+                        selectedOperator = await GameUIPresenter.Instance.SelectOperatorAsync(isCalculable, gameCt);
                     }
-                    gameUIView.ClearLine();
+                    lineRenderer.ClearLine();
                     GameUIPresenter.Instance.Calculation(firstNumberBox, secondNumberBox, selectedOperator);
                     PuzzleHistory.SetHist(DiceCalculator.GetAllDices(), 
                         GameUIPresenter.Instance.CreateFormulaText(DiceCalculator.FetchCurrentFormula()));
