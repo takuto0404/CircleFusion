@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace CircleFusion.InGame
 {
@@ -54,10 +55,11 @@ namespace CircleFusion.InGame
         {
             _currentFormula = null;
         }
+        //275,350
         
         public static bool IsCorrectReached()
         {
-            var activeDices = _dices.Where(dice => dice.IsActive).ToArray();
+            var activeDices = _dices.Where(dice => dice.IsActive && !dice.IsAnswerDice).ToArray();
             if (activeDices.Length != 1) return false;
             var lastBoxNumber = activeDices.First().DiceNumber.Value;
             return lastBoxNumber == _answerDice.DiceNumber.Value;

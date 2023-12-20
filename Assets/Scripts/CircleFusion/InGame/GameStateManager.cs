@@ -78,8 +78,7 @@ namespace CircleFusion.InGame
                 var gameCompetitionTask =
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
-
-                Debug.Log("Finished!");
+                
                 if (result == 3)
                 {
                     await GameUIPresenter.Instance.MoveToCenterAsync(gameCts.Token);

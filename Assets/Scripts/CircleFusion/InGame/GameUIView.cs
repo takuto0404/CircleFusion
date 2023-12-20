@@ -52,22 +52,22 @@ namespace CircleFusion.InGame
 
         public async UniTask EndGameAnimationAsync(bool isCleared, CancellationToken gameCt)
         {
-            resultScoreText.text = $"ポイント:{GameState.Score}";
-            scoreText.text = $"ポイント:{GameState.Score}";
+            resultScoreText.SetText($"ポイント:{GameState.Score}");
+            scoreText.SetText($"ポイント:{GameState.Score}");
             RectTransform rectTransform;
             if (isCleared)
             {
                 rectTransform = gameClearPanel.GetComponent<RectTransform>();
                 gameClearPanel.SetActive(true);
 
-                resultTimeText.text = $"じかん:{GameState.CurrentTime.Value:F2}";
+                resultTimeText.SetText($"じかん:{GameState.CurrentTime.Value:F2}");
             }
             else
             {
                 rectTransform = gameOverPanel.GetComponent<RectTransform>();
                 gameOverPanel.SetActive(true);
 
-                solutionText.text = "Solutions:\n";
+                solutionText.SetText("Solutions:\n");
 
                 var randomSolutions = GetRandomElements(GameState.FormulaStrings,
                     Mathf.Min(DisplayedSolutionCount, GameState.FormulaStrings.Count));
@@ -83,13 +83,18 @@ namespace CircleFusion.InGame
 
             if (isCleared)
             {
+                resultTimeText.gameObject.SetActive(true);
                 comboCounterImage.SetActive(false);
                 comboCounterImage.transform.localScale = new Vector2(1.5f, 1.5f);
-                comboCountText.text = GameState.ComboCount.ToString();
+                comboCountText.SetText(GameState.ComboCount.ToString());
                 comboCounterImage.SetActive(true);
+                resultScoreText.rectTransform.anchoredPosition = new Vector2(0, 275);
                 await comboCounterImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken: gameCt);
             }
-
+            else
+            {
+                resultScoreText.rectTransform.anchoredPosition = new Vector2(0,350);
+            }
             await restartButton.OnClickAsync(gameCt);
         }
 
@@ -121,10 +126,10 @@ namespace CircleFusion.InGame
 
             var diceCount = GameInitialData.Instance.diceCount;
             diceCountSlider.value = diceCount;
-            diceCountText.text = diceCount.ToString();
+            diceCountText.SetText(diceCount.ToString());
             var maxDiceValue = GameInitialData.Instance.maxDiceValue;
             diceMaxSlider.value = maxDiceValue;
-            diceMaxText.text = diceCount.ToString();
+            diceMaxText.SetText(diceCount.ToString());
             
             if (numberBoxes.Count != diceCount)
             {
@@ -137,7 +142,8 @@ namespace CircleFusion.InGame
             comboCounterImage.SetActive(false);
             restartButton.gameObject.SetActive(false);
             resultScoreText.gameObject.SetActive(false);
-            formulaText.text = "";
+            resultTimeText.gameObject.SetActive(false);
+            formulaText.SetText("");
         }
 
         private void PlaceNumberBox(int diceCount)
@@ -179,7 +185,7 @@ namespace CircleFusion.InGame
 
         public void SetTimerText(float time)
         {
-            timeText.text = $"じかん:{time:F2}";
+            timeText.SetText($"じかん:{time:F2}");
         }
 
         public async UniTask ShowMessageAsync()
@@ -191,7 +197,7 @@ namespace CircleFusion.InGame
 
         public void UpdateFormulaText(string formulaString)
         {
-            formulaText.text = formulaString;
+            formulaText.SetText(formulaString);
         }
 
         public async UniTask<OperatorSymbol> SelectOperatorAsync(bool[] isCalculable, CancellationToken gameCt)
@@ -227,10 +233,10 @@ namespace CircleFusion.InGame
         public async UniTask ProcessSettingsAsync(CancellationToken gameCt)
         {
             using (diceCountSlider.OnValueChangedAsAsyncEnumerable().Subscribe(value =>
-                       diceCountText.text = value.ToString(CultureInfo.InvariantCulture)))
+                       diceCountText.SetText(value.ToString(CultureInfo.InvariantCulture))))
             {
                 using (diceMaxSlider.OnValueChangedAsAsyncEnumerable()
-                           .Subscribe(value => diceMaxText.text = value.ToString(CultureInfo.InvariantCulture)))
+                           .Subscribe(value => diceMaxText.SetText(value.ToString(CultureInfo.InvariantCulture))))
                 {
                     settingsPanel.SetActive(true);
 

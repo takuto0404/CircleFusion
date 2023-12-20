@@ -53,7 +53,7 @@ namespace CircleFusion.InGame
 
         public void SetNumberText(int number)
         {
-            numberText.text = number.ToString();
+            numberText.SetText(number.ToString());
         }
     }
 }
