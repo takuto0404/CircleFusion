@@ -49,13 +49,8 @@ namespace CircleFusion.InGame
                 solutionInfo = PuzzleSolver.SolvePuzzle(DiceCalculator.GetAnswerNumber(),
                     DiceCalculator.ExtractDiceNumbers());
                 
-                if (solutionInfo.isSolvable)
-                {
-                    Debug.Log("きた！");
-                    break;
-                }
-
-                Debug.Log("まだ...");
+                if (solutionInfo.isSolvable) break;
+                
                 await GameUIPresenter.Instance.ShowMessageAsync();
             }
 
@@ -80,8 +75,7 @@ namespace CircleFusion.InGame
                 
                 await PreparePuzzle(gameCts.Token);
                 CountTimerAsync(gameCts.Token).Forget();
-
-                Debug.Log("aiueo");
+                
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
                 var gameCompetitionTask =

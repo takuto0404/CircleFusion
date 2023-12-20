@@ -16,15 +16,15 @@ namespace CircleFusion.InGame
         private Dictionary<Dice, NumberBox> _diceToNumberBoxMap = new();
         private Dictionary<NumberBox, Dice> _numberBoxToDiceMap = new();
 
-        private readonly Dictionary<OperatorMark, string> _operationSymbolDictionary = new()
+        private readonly Dictionary<OperatorSymbol, string> _operationSymbolDictionary = new()
         {
-            { OperatorMark.Plus, "+" },
-            { OperatorMark.Minus, "-" },
-            { OperatorMark.Times, "×" },
-            { OperatorMark.Devide, "÷" }
+            { OperatorSymbol.Plus, "+" },
+            { OperatorSymbol.Minus, "-" },
+            { OperatorSymbol.Times, "×" },
+            { OperatorSymbol.Devide, "÷" }
         };
 
-        public void Calculation(NumberBox firstNumberBox, NumberBox secondNumberBox, OperatorMark operatorSymbol)
+        public void Calculation(NumberBox firstNumberBox, NumberBox secondNumberBox, OperatorSymbol operatorSymbol)
         {
             DiceCalculator.MergeDice(_numberBoxToDiceMap[firstNumberBox], _numberBoxToDiceMap[secondNumberBox],
                 operatorSymbol);
@@ -145,9 +145,7 @@ namespace CircleFusion.InGame
 
         public async UniTask WaitForRetirementAsync(CancellationToken gameCt)
         {
-            Debug.Log("Retireまで...");
             await gameUIView.RetireButtonOnClickAsync(gameCt);
-            Debug.Log("Retire!");
         }
     }
 }

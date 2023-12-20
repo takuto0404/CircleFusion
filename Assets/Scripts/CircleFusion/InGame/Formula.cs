@@ -2,7 +2,7 @@ namespace CircleFusion.InGame
 {
     public class Formula
     {
-        public Formula(int firstDice ,int secondDice,OperatorMark operatorSymbol,int result)
+        public Formula(int firstDice ,int secondDice,OperatorSymbol operatorSymbol,int result)
         {
             FirstDice = firstDice;
             SecondDice = secondDice;
@@ -12,7 +12,7 @@ namespace CircleFusion.InGame
         public readonly int FirstDice;
         public readonly int SecondDice;
         public readonly int Result;
-        public readonly OperatorMark OperatorSymbol;
+        public readonly OperatorSymbol OperatorSymbol;
     
     }
 }

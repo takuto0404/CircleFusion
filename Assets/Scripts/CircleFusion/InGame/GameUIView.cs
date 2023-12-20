@@ -78,7 +78,7 @@ namespace CircleFusion.InGame
                 rectTransform = gameOverPanel.GetComponent<RectTransform>();
                 gameOverPanel.SetActive(true);
 
-                solutionText.text = "Solutions:";
+                solutionText.text = "Solutions:\n";
 
                 var randomSolutions = GetRandomElements(GameState.FormulaStrings,
                     Mathf.Min(DisplayedSolutionCount, GameState.FormulaStrings.Count));
@@ -205,7 +205,7 @@ namespace CircleFusion.InGame
             formulaText.text = formulaString;
         }
 
-        public async UniTask<OperatorMark> SelectOperatorAsync(bool[] isCalculable, CancellationToken gameCt)
+        public async UniTask<OperatorSymbol> SelectOperatorAsync(bool[] isCalculable, CancellationToken gameCt)
         {
             var selectOperatorCts = new CancellationTokenSource();
             var mergedCts = CancellationTokenSource.CreateLinkedTokenSource(gameCt, selectOperatorCts.Token);
@@ -216,7 +216,7 @@ namespace CircleFusion.InGame
 
             selectOperatorCts.Cancel();
             HideOperators();
-            return (OperatorMark)result;
+            return (OperatorSymbol)result;
         }
 
         public IUniTaskAsyncEnumerable<AsyncUnit> SettingButtonOnClickAsAsyncEnumerable()

@@ -11,16 +11,16 @@ namespace CircleFusion.InGame
         private static Formula _currentFormula;
         private static List<Dice> _dices;
 
-        private static int CalculateResult(Dice firstDice, Dice secondDice, OperatorMark operatorSymbol)
+        private static int CalculateResult(Dice firstDice, Dice secondDice, OperatorSymbol operatorSymbol)
         {
             var value1 = firstDice.DiceNumber.Value;
             var value2 = secondDice.DiceNumber.Value;
             return operatorSymbol switch
             {
-                OperatorMark.Plus => value1 + value2,
-                OperatorMark.Minus => value1 - value2,
-                OperatorMark.Times => value1 * value2,
-                OperatorMark.Devide => value1 / value2,
+                OperatorSymbol.Plus => value1 + value2,
+                OperatorSymbol.Minus => value1 - value2,
+                OperatorSymbol.Times => value1 * value2,
+                OperatorSymbol.Devide => value1 / value2,
                 _ => -1
             };
         }
@@ -63,7 +63,7 @@ namespace CircleFusion.InGame
             return lastBoxNumber == _answerDice.DiceNumber.Value;
         }
         
-        public static void MergeDice(Dice firstDice, Dice secondDice, OperatorMark operatorSymbol)
+        public static void MergeDice(Dice firstDice, Dice secondDice, OperatorSymbol operatorSymbol)
         {
             var result = CalculateResult(firstDice, secondDice, operatorSymbol);
             _currentFormula = new Formula(firstDice.DiceNumber.Value, secondDice.DiceNumber.Value, operatorSymbol,

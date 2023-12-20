@@ -40,9 +40,9 @@ namespace CircleFusion.InGame
                 {
                     NumberBox firstNumberBox = null;
                     NumberBox secondNumberBox = null;
-                    var selectedOperator = OperatorMark.None;
+                    var selectedOperator = OperatorSymbol.None;
                     
-                    while (selectedOperator == OperatorMark.None)
+                    while (selectedOperator == OperatorSymbol.None)
                     {
                         secondNumberBox = null;
                         while (secondNumberBox == null)

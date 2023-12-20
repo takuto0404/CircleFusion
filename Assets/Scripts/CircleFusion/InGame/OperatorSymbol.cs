@@ -1,6 +1,6 @@
 namespace CircleFusion.InGame
 {
-    public enum OperatorMark
+    public enum OperatorSymbol
     {
         Plus = 0,Minus,Times,Devide,None
     }

@@ -1,119 +1,118 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace CircleFusion.InGame
 {
-    public class FormulaInfo
-    {
-        public FormulaInfo(int number,string solutionString,OperatorMark beforeOperatorSymbol)
-        {
-            Number = number;
-            SolutionString = solutionString;
-            BeforeOperatorSymbol = beforeOperatorSymbol;
-        }
-        public int Number;
-        public string SolutionString;
-        public OperatorMark BeforeOperatorSymbol;
-    }
     public static class PuzzleSolver
     {
-        private static readonly Dictionary<OperatorMark, string> OperatorDic = new()
-        {
-            { OperatorMark.Plus, "+" },
-            { OperatorMark.Minus, "-" },
-            { OperatorMark.Times, "*" },
-            { OperatorMark.Devide, "/" },
-            { OperatorMark.None , ""}
-        };
-
-        private static readonly Stack<FormulaInfo[]> FormulaHist =
+        private static readonly Stack<(int number, string text, OperatorSymbol beforeOperatorSymbol)[]> NumberHist =
             new();
 
-        private static FormulaInfo[] _originalDices;
+        private static readonly Dictionary<OperatorSymbol, string> OperatorDic = new()
+        {
+            { OperatorSymbol.Plus, "+" },
+            { OperatorSymbol.Minus, "-" },
+            { OperatorSymbol.Times, "*" },
+            { OperatorSymbol.Devide, "/" }
+        };
+
+        private static (int number, string text, OperatorSymbol beforeOperatorSymbol)[] _numbers;
         private static List<string> _solutions;
         private static int _targetAnswer;
 
-        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer, int[] diceNumbers)
+
+        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer, int[] originalNumbers)
         {
             _solutions = new List<string>();
-            _originalDices = diceNumbers.Select(diceNumber => new FormulaInfo(diceNumber, diceNumber.ToString(), OperatorMark.None)).ToArray();
-            FormulaHist.Push(_originalDices);
-            _targetAnswer = targetAnswer;
+            _numbers = originalNumbers.Select(number => (number, number.ToString(), OperatorSymbol.None)).ToArray();
 
+            NumberHist.Push(_numbers);
+            _targetAnswer = targetAnswer;
             Solve();
+
             return (_solutions.Count > 0, _solutions);
         }
 
         private static void Solve()
         {
-            var lastFormula = FormulaHist.Peek();
-            var subscribed1 = new List<int>();
-            for (var i = 0; i < _originalDices.Length; i++)
+            var last = NumberHist.Peek();
+            for (var i = 0; i < _numbers.Length; i++)
             {
-                if (lastFormula[i].Number == -1 || subscribed1.Contains(lastFormula[i].Number)) continue;
-                subscribed1.Add(lastFormula[i].Number);
-                var subscribed2 = new List<int>();
-                for (var l = 0; l < _originalDices.Length; l++)
+                if (last[i].number == -1) continue;
+                for (var l = 0; l < _numbers.Length; l++)
                 {
-                    if (i == l || lastFormula[l].Number == -1 || lastFormula[i].Number == -1 ||
-                        subscribed2.Contains(lastFormula[i].Number) ||
-                        lastFormula[i].Number < lastFormula[l].Number) continue;
-                    subscribed2.Add(lastFormula[i].Number);
+                    if (i == l || last[l].number == -1 || last[i].number == -1 || last[i].number < last[l].number) continue;
                     for (var operatorNumber = 0; operatorNumber < 4; operatorNumber++)
                     {
-                        var hist = CopyArray(lastFormula);
-                        var beforeFirstFormula = hist[i];
-                        var beforeSecondFormula = hist[l];
+                        var newArray = CopyArray(last);
 
-                        var firstFormula = hist[i];
-                        var secondFormula = hist[l];
-                        var isCalculable = new []
+                        var beforeFirstNumber = newArray[i];
+                        var beforeSecondNumber = newArray[l];
+                        var firstNumber = newArray[i];
+                        var secondNumber = newArray[l];
+                        var canCalculate = new []
                         {
-                            true, firstFormula.Number <= secondFormula.Number, 
                             true,
-                            (float)firstFormula.Number / (float)secondFormula.Number % 1 == 0 && secondFormula.Number != 0 &&
-                            secondFormula.Number != 1
+                            firstNumber.number <= secondNumber.number,
+                            true,
+                            ((float)firstNumber.number / (float)secondNumber.number) % 1 == 0 &&
+                            secondNumber.number != 0 &&
+                            secondNumber.number != 1
                         };
 
-                        if (!isCalculable[operatorNumber]) continue;
-                        
-                        if ((beforeFirstFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Times && beforeFirstFormula.BeforeOperatorSymbol == (OperatorMark)operatorNumber) ||
-                            (beforeSecondFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Times &&
-                             beforeSecondFormula.BeforeOperatorSymbol == (OperatorMark)operatorNumber))
+                        if (!canCalculate[operatorNumber]) continue;
+                        if ((beforeFirstNumber.beforeOperatorSymbol is OperatorSymbol.Plus or OperatorSymbol.Times &&
+                             beforeFirstNumber.beforeOperatorSymbol == (OperatorSymbol)operatorNumber) ||
+                            (beforeSecondNumber.beforeOperatorSymbol is OperatorSymbol.Plus or OperatorSymbol.Times &&
+                             beforeSecondNumber.beforeOperatorSymbol == (OperatorSymbol)operatorNumber))
                         {
-                            if (beforeFirstFormula.Number < secondFormula.Number)
+                            if (beforeFirstNumber.number < secondNumber.number)
                             {
                                 continue;
                             }
                         }
 
-                        if (beforeFirstFormula.BeforeOperatorSymbol == OperatorMark.Devide && beforeSecondFormula.BeforeOperatorSymbol == OperatorMark.Times)
+                        if (beforeFirstNumber.beforeOperatorSymbol == OperatorSymbol.Devide &&
+                            beforeSecondNumber.beforeOperatorSymbol == OperatorSymbol.Times)
                         {
                             continue;
                         }
 
-                        firstFormula.Number = CalculateResult(firstFormula.Number, secondFormula.Number,
-                            (OperatorMark)operatorNumber);
-
-                        CreateFormulaText(beforeFirstFormula,beforeSecondFormula,firstFormula,(OperatorMark)operatorNumber);
-
-                        firstFormula.BeforeOperatorSymbol = (OperatorMark)operatorNumber;
-
-                        secondFormula.SolutionString = "";
-                        secondFormula.Number = -1;
-                        secondFormula.BeforeOperatorSymbol = OperatorMark.None;
-
-                        hist[i] = firstFormula;
-                        hist[l] = secondFormula;
-                        FormulaHist.Push(hist);
-
-                        var activeNumbers = hist.Where(x => x.Number != -1).ToArray();
-                        if (activeNumbers.Length == 1)
+                        switch ((OperatorSymbol)operatorNumber)
                         {
-                            if (activeNumbers.First().Number == _targetAnswer)
+                            case OperatorSymbol.Plus:
+                                firstNumber.number += secondNumber.number;
+                                break;
+                            case OperatorSymbol.Minus:
+                                firstNumber.number -= secondNumber.number;
+                                break;
+                            case OperatorSymbol.Times:
+                                firstNumber.number *= secondNumber.number;
+                                break;
+                            case OperatorSymbol.Devide:
+                                firstNumber.number /= secondNumber.number;
+                                break;
+                        }
+
+
+                        firstNumber.beforeOperatorSymbol = (OperatorSymbol)operatorNumber;
+
+                        firstNumber.text = CreateStringText(beforeFirstNumber, beforeSecondNumber, (OperatorSymbol)operatorNumber);
+
+                        secondNumber.text = "";
+                        secondNumber.number = -1;
+                        secondNumber.beforeOperatorSymbol = OperatorSymbol.None;
+
+                        newArray[i] = firstNumber;
+                        newArray[l] = secondNumber;
+                        NumberHist.Push(newArray);
+
+                        var activeList = newArray.Where(x => x.number != -1).ToArray();
+                        if (activeList.Length == 1)
+                        {
+                            if (activeList.First().number == _targetAnswer)
                             {
-                                var text = $"{activeNumbers.First().SolutionString} = {_targetAnswer}";
+                                var text = $"{activeList.First().text} = {_targetAnswer}";
                                 if (_solutions.Contains(text)) continue;
                                 _solutions.Add(text);
                             }
@@ -121,52 +120,59 @@ namespace CircleFusion.InGame
 
                         Solve();
 
-                        FormulaHist.Pop();
+                        NumberHist.Pop();
                     }
                 }
             }
         }
 
-        private static int CalculateResult(int firstNumber, int secondNumber, OperatorMark operatorMark)
+        private static string CreateStringText(
+            (int number, string text, OperatorSymbol beforeOperatorSymbol) beforeFirstNumber,
+            (int number, string text, OperatorSymbol beforeOperatorSymbol) beforeSecondNumber,
+            OperatorSymbol operatorSymbol)
         {
-            return operatorMark switch
+            var formulaText = "";
+            if (operatorSymbol is OperatorSymbol.Times or OperatorSymbol.Devide)
             {
-                OperatorMark.Plus => firstNumber + secondNumber,
-                OperatorMark.Minus => firstNumber - secondNumber,
-                OperatorMark.Times => firstNumber * secondNumber,
-                OperatorMark.Devide => firstNumber / secondNumber,
-                _ => -1
-            };
-        }
-        
-        private static FormulaInfo[] CopyArray(FormulaInfo[] originalArray)
-        {
-            var newArray = new FormulaInfo[originalArray.Length];
-            Array.Copy(originalArray, newArray, originalArray.Length);
-            return newArray;
-        }
-
-        private static void CreateFormulaText(FormulaInfo beforeFirstFormula,FormulaInfo beforeSecondFormula,FormulaInfo firstFormula,OperatorMark operatorSymbol)
-        {
-            if (operatorSymbol is OperatorMark.Times or OperatorMark.Devide)
-            {
-                firstFormula.SolutionString = beforeFirstFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Minus ? $"({beforeFirstFormula.SolutionString})" : beforeFirstFormula.SolutionString;
-                
-                firstFormula.SolutionString += OperatorDic[operatorSymbol];
-                
-                if (beforeSecondFormula.BeforeOperatorSymbol is OperatorMark.Plus or OperatorMark.Minus)
+                if (beforeFirstNumber.beforeOperatorSymbol is OperatorSymbol.Plus or OperatorSymbol.Minus)
                 {
-                    firstFormula.SolutionString += $"({beforeSecondFormula.SolutionString})";
+                    formulaText += $"({beforeFirstNumber.text}) ";
                 }
                 else
                 {
-                    firstFormula.SolutionString += beforeSecondFormula.SolutionString;
+                    formulaText += $"{beforeFirstNumber.text} ";
+                }
+
+                formulaText += OperatorDic[operatorSymbol];
+
+                if (beforeSecondNumber.beforeOperatorSymbol is OperatorSymbol.Plus or OperatorSymbol.Minus)
+                {
+                    formulaText += $" ({beforeSecondNumber.text})";
+                }
+                else
+                {
+                    formulaText += $" {beforeSecondNumber.text}";
                 }
             }
             else
             {
-                firstFormula.SolutionString = $"{beforeFirstFormula.SolutionString} {OperatorDic[operatorSymbol]} {beforeSecondFormula.SolutionString}";
+                formulaText = $"{beforeFirstNumber.text} {OperatorDic[operatorSymbol]} {beforeSecondNumber.text}";
             }
+
+            return formulaText;
+        }
+
+        private static (int number, string text, OperatorSymbol beforeOperatorSymbol)[] CopyArray(
+            (int number, string text, OperatorSymbol beforeOpeartorMark)[] array)
+        {
+            var newArray =
+                new (int number, string text, OperatorSymbol beforeOperatorSymbol)[array.Length];
+            for (var i = 0; i < array.Length; i++)
+            {
+                newArray[i] = array[i];
+            }
+
+            return newArray;
         }
     }
 }
