@@ -131,11 +131,15 @@ namespace CircleFusion.InGame
             diceMaxSlider.value = maxDiceValue;
             diceMaxText.SetText(diceCount.ToString());
             
+            
             if (numberBoxes.Count != diceCount)
             {
                 PlaceNumberBox(diceCount);
             }
 
+            scoreText.SetText($"ポイント:{GameState.Score}");
+            SetTimerText(0);
+            
             numberBoxes.ForEach(numberBox => numberBox.ShowNumberBox());
             gameClearPanel.SetActive(false);
             gameOverPanel.SetActive(false);

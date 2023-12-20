@@ -12,11 +12,8 @@ namespace CircleFusion.InGame
         public bool IsAnswerDice;
         public bool IsActive = true;
         private const float RollIntervalInSeconds = 0.04f;
-
-        //TODO:時間のテキストのサイズがおかしい
+        
         //TODO:Returnボタンが消えない
-        //TODO:初回プレイ時にスコアの変更が反映されていない
-        //TODO:タイマー止めるタイミングおかしい
         //TODO:スコアが大きすぎる
         //TODO:タイムが反映されるように
         //TODO:プレイヤーの特徴を分析

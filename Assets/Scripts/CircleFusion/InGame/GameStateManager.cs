@@ -71,7 +71,10 @@ namespace CircleFusion.InGame
                 var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
                 
                 await PreparePuzzle(gameCts.Token);
-                CountTimerAsync(gameCts.Token).Forget();
+
+                var timerCts = new CancellationTokenSource();
+                var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(gameCts.Token, timerCts.Token).Token;
+                CountTimerAsync(mergedCt).Forget();
                 
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
@@ -79,11 +82,11 @@ namespace CircleFusion.InGame
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
                 
+                timerCts.Cancel();
                 if (result == 3)
                 {
                     await GameUIPresenter.Instance.MoveToCenterAsync(gameCts.Token);
                 }
-
                 gameCts.Cancel();
 
                 if (result == 2)
