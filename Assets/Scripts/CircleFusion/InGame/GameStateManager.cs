@@ -45,9 +45,8 @@ namespace CircleFusion.InGame
             {
                 var rollTask = DiceCalculator.RollDiceAsync(gameCt);
                 var animationTask = GameUIPresenter.Instance.EndRollAnimationAsync(gameCt);
-                await UniTask.WhenAll(rollTask, animationTask);
-
-                solutionInfo = await rollTask;
+                var result = await UniTask.WhenAll(rollTask, animationTask);
+                solutionInfo = result.Item1;
                 if (solutionInfo.isSolvable) break;
                 
                 await GameUIPresenter.Instance.ShowMessageAsync();
@@ -80,7 +79,7 @@ namespace CircleFusion.InGame
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
                 var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
 
-
+                Debug.Log("Finished!");
                 if (result == 3)
                 {
                     await GameUIPresenter.Instance.MoveToCenterAsync(gameCts.Token);

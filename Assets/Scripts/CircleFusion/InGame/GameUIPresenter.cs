@@ -57,7 +57,7 @@ namespace CircleFusion.InGame
             await gameUIView.EndGameAnimationAsync(isCleared, gameCt);
         }
 
-        public async UniTask EndRollAnimationAsync(CancellationToken gameCt)
+        public async UniTask<bool> EndRollAnimationAsync(CancellationToken gameCt)
         {
             var tasks = _diceToNumberBoxMap.ToList().Select(keyValue =>
                 UniTask.Create(async () =>
@@ -66,6 +66,7 @@ namespace CircleFusion.InGame
                     await keyValue.Value.EndRollAnimationAsync(gameCt);
                 }));
             await UniTask.WhenAll(tasks);
+            return true;
         }
 
         public async UniTask HandlePuzzlePlayAsync(CancellationToken gameCt)
