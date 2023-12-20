@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,7 +22,8 @@ namespace CircleFusion.InGame
         private static int _targetAnswer;
 
 
-        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer, int[] originalNumbers)
+        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer,
+            int[] originalNumbers)
         {
             _solutions = new List<string>();
             _numbers = originalNumbers.Select(number => (number, number.ToString(), OperatorSymbol.None)).ToArray();
@@ -41,7 +43,9 @@ namespace CircleFusion.InGame
                 if (last[i].number == -1) continue;
                 for (var l = 0; l < _numbers.Length; l++)
                 {
-                    if (i == l || last[l].number == -1 || last[i].number == -1 || last[i].number < last[l].number) continue;
+                    if (i == l) continue;
+                    if (last[l].number == -1 || last[i].number == -1) continue;
+                    if (last[i].number < last[l].number) continue;
                     for (var operatorNumber = 0; operatorNumber < 4; operatorNumber++)
                     {
                         var newArray = CopyArray(last);
@@ -50,7 +54,7 @@ namespace CircleFusion.InGame
                         var beforeSecondNumber = newArray[l];
                         var firstNumber = newArray[i];
                         var secondNumber = newArray[l];
-                        var canCalculate = new []
+                        var canCalculate = new[]
                         {
                             true,
                             firstNumber.number <= secondNumber.number,
@@ -78,26 +82,14 @@ namespace CircleFusion.InGame
                             continue;
                         }
 
-                        switch ((OperatorSymbol)operatorNumber)
-                        {
-                            case OperatorSymbol.Plus:
-                                firstNumber.number += secondNumber.number;
-                                break;
-                            case OperatorSymbol.Minus:
-                                firstNumber.number -= secondNumber.number;
-                                break;
-                            case OperatorSymbol.Times:
-                                firstNumber.number *= secondNumber.number;
-                                break;
-                            case OperatorSymbol.Devide:
-                                firstNumber.number /= secondNumber.number;
-                                break;
-                        }
+                        firstNumber.number = CalculateResult(firstNumber.number, secondNumber.number,
+                            (OperatorSymbol)operatorNumber);
 
 
                         firstNumber.beforeOperatorSymbol = (OperatorSymbol)operatorNumber;
 
-                        firstNumber.text = CreateStringText(beforeFirstNumber, beforeSecondNumber, (OperatorSymbol)operatorNumber);
+                        firstNumber.text = CreateStringText(beforeFirstNumber, beforeSecondNumber,
+                            (OperatorSymbol)operatorNumber);
 
                         secondNumber.text = "";
                         secondNumber.number = -1;
@@ -123,6 +115,23 @@ namespace CircleFusion.InGame
                         NumberHist.Pop();
                     }
                 }
+            }
+        }
+
+        private static int CalculateResult(int firstNumber, int secondNumber, OperatorSymbol operatorSymbol)
+        {
+            switch (operatorSymbol)
+            {
+                case OperatorSymbol.Plus:
+                    return firstNumber + secondNumber;
+                case OperatorSymbol.Minus:
+                    return firstNumber - secondNumber;
+                case OperatorSymbol.Times:
+                    return firstNumber * secondNumber;
+                case OperatorSymbol.Devide:
+                    return firstNumber / secondNumber;
+                default:
+                    return -1;
             }
         }
 
@@ -165,8 +174,8 @@ namespace CircleFusion.InGame
         private static (int number, string text, OperatorSymbol beforeOperatorSymbol)[] CopyArray(
             (int number, string text, OperatorSymbol beforeOpeartorMark)[] array)
         {
-            var newArray =
-                new (int number, string text, OperatorSymbol beforeOperatorSymbol)[array.Length];
+            var newArray = new (int number, string text, OperatorSymbol beforeOperatorSymbol)[array.Length];
+            Array.Copy(array,newArray,array.Length);
             for (var i = 0; i < array.Length; i++)
             {
                 newArray[i] = array[i];
