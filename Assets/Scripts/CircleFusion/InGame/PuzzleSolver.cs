@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 
 namespace CircleFusion.InGame
 {
     public static class PuzzleSolver
     {
+        public static (bool isSolvable, List<string> solutionStrings) Solution;
         private static readonly Stack<(int number, string text, OperatorSymbol beforeOperatorSymbol)[]> NumberHist =
             new();
 
@@ -22,7 +24,7 @@ namespace CircleFusion.InGame
         private static int _targetAnswer;
 
 
-        public static (bool isSolvable, List<string> solutionStrings) SolvePuzzle(int targetAnswer,
+        public static async UniTask SolvePuzzle(int targetAnswer,
             int[] originalNumbers)
         {
             _solutions = new List<string>();
@@ -30,19 +32,26 @@ namespace CircleFusion.InGame
 
             NumberHist.Push(_numbers);
             _targetAnswer = targetAnswer;
-            Solve();
+            await Solve();
 
-            return (_solutions.Count > 0, _solutions);
+            Solution =  (_solutions.Count > 0, _solutions);
         }
 
-        private static void Solve()
+        private static async UniTask Solve()
         {
             var last = NumberHist.Peek();
+            var usedNumber1 = new List<int>();
             for (var i = 0; i < _numbers.Length; i++)
             {
+                if(usedNumber1.Contains(last[i].number))continue;
+                usedNumber1.Add(last[i].number);
                 if (last[i].number == -1) continue;
+
+                var usedNumber2 = new List<int>();
                 for (var l = 0; l < _numbers.Length; l++)
                 {
+                    if(usedNumber2.Contains(last[l].number))continue;
+                    usedNumber2.Add(last[l].number);
                     if (i == l) continue;
                     if (last[l].number == -1 || last[i].number == -1) continue;
                     if (last[i].number < last[l].number) continue;

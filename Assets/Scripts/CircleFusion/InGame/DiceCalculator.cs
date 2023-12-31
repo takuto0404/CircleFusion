@@ -25,8 +25,8 @@ namespace CircleFusion.InGame
                 _ => -1
             };
         }
-        
-        public static int[] ExtractDiceNumbers()
+
+        private static int[] ExtractDiceNumbers()
         {
             return _dices.Where(dice => !dice.IsAnswerDice).Select(dice => dice.DiceNumber.Value).ToArray();
         }
@@ -77,11 +77,15 @@ namespace CircleFusion.InGame
 
         public static async UniTask<(bool isSolvable,List<string> solutionStrings)> RollDiceAsync(CancellationToken gameCt)
         {
+            var randomNumbers = Enumerable.Range(1, _dices.Count)
+                .Select(_ => Random.Range(1, GameInitialData.Instance.maxDiceValue + 1)).ToArray();
             var shuffleTasks = _dices.Select((dice, i) =>
-                dice.RollDiceAsync(i + 1, gameCt)).ToList();
-            shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, gameCt));
-            await UniTask.WhenAll(shuffleTasks);
-            return PuzzleSolver.SolvePuzzle(GetAnswerNumber(), ExtractDiceNumbers());
+                dice.RollDiceAsync(i + 1, randomNumbers[i],gameCt)).ToList();
+            var randomAnswerNumber = Random.Range(1, GameInitialData.Instance.maxDiceValue) * 10 +
+                                     Random.Range(1, GameInitialData.Instance.maxDiceValue);
+            shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, randomAnswerNumber,gameCt));
+            await UniTask.WhenAll(PuzzleSolver.SolvePuzzle(GetAnswerNumber(), ExtractDiceNumbers()),UniTask.WhenAll(shuffleTasks));
+            return PuzzleSolver.Solution;
         }
         
         public static void SetDice(List<Dice> dices, Dice answerDice)

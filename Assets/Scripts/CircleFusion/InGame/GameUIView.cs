@@ -214,6 +214,8 @@ namespace CircleFusion.InGame
             var result = await UniTask.WhenAny(tasks);
 
             selectOperatorCts.Cancel();
+            await UniTask.Yield(cancellationToken:gameCt);
+            
             HideOperators();
             return (OperatorSymbol)result;
         }
@@ -225,13 +227,17 @@ namespace CircleFusion.InGame
 
         private async UniTask ShowOperatorSymbolsAsync(bool[] canCalculate, CancellationToken gameCt)
         {
-            for (var i = 0; i < 5; i++)
+            var task = UniTask.Create(async () =>
             {
-                operatorButtons[i].gameObject.SetActive(canCalculate[i]);
-                operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
-                await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f)
-                    .ToUniTask(cancellationToken: gameCt);
-            }
+                for (var i = 0; i < 5; i++)
+                {
+                    operatorButtons[i].gameObject.SetActive(canCalculate[i]);
+                    operatorButtons[i].transform.localRotation = Quaternion.Euler(0, 0, 20);
+                    await operatorButtons[i].transform.DORotate(new Vector3(0, 0, 0), 0.1f)
+                        .ToUniTask(cancellationToken: gameCt);
+                }
+            });
+            await UniTask.WhenAny(task, UniTask.WaitUntilCanceled(gameCt));
         }
 
         public async UniTask ProcessSettingsAsync(CancellationToken gameCt)

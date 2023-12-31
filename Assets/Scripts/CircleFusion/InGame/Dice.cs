@@ -11,13 +11,12 @@ namespace CircleFusion.InGame
         public readonly AsyncReactiveProperty<int> DiceNumber = new(-1);
         public bool IsAnswerDice;
         public bool IsActive = true;
-        private const float RollIntervalInSeconds = 0.04f;
+        private const float RollIntervalInSeconds = 0.02f;
         
-        //TODO:Returnボタンが消えない
         //TODO:スコアが大きすぎる
         //TODO:タイムが反映されるように
         //TODO:プレイヤーの特徴を分析
-        public async UniTask RollDiceAsync(int rollIndex,CancellationToken gameCt)
+        public async UniTask RollDiceAsync(int rollIndex,int answer,CancellationToken gameCt)
         {
             var rollTime = GameInitialData.Instance.rollTime * rollIndex;
             DiceNumber.Value = 0;
@@ -32,6 +31,8 @@ namespace CircleFusion.InGame
                     DiceNumber.Value = randomPair.tensPlace * 10 + randomPair.unitsPlace;
                     await UniTask.Delay(TimeSpan.FromSeconds(RollIntervalInSeconds), cancellationToken: gameCt);
                 }
+
+                DiceNumber.Value = answer;
                 IsDiceRolled.Value = true;
             }
             else
@@ -43,6 +44,7 @@ namespace CircleFusion.InGame
                     DiceNumber.Value = randomNumber;
                     await UniTask.Delay(TimeSpan.FromSeconds(RollIntervalInSeconds), cancellationToken: gameCt);
                 }
+                DiceNumber.Value = answer;
                 IsDiceRolled.Value = true;
             }
         }
