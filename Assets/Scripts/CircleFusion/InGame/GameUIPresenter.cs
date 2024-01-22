@@ -85,7 +85,7 @@ namespace CircleFusion.InGame
                 .ForEachAwaitAsync(async _ =>
                 {
                     await gameUIView.ProcessSettingsAsync(mergedCt);
-                    await PlayerDataManager.SavePlayerDataAsync(
+                    PlayerDataManager.SavePlayerDataAsync(
                         new PlayerData(GameState.Score, GameState.ComboCount, GameInitialData.Instance.diceCount,
                             GameInitialData.Instance.maxDiceValue), gameCt);
                 }, cancellationToken: mergedCt);

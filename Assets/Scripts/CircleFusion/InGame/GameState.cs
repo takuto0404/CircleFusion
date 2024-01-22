@@ -13,7 +13,7 @@ namespace CircleFusion.InGame
         public static void GameClear()
         {
             ComboCount++;
-            Score += ComboCount * (GameInitialData.Instance.diceCount + GameInitialData.Instance.maxDiceValue);
+            Score += ComboCount + GameInitialData.Instance.diceCount * 2 + GameInitialData.Instance.maxDiceValue;
         }
 
         public static void GameOver()

@@ -25,11 +25,6 @@ namespace CircleFusion.InGame
                 _ => -1
             };
         }
-
-        private static int[] ExtractDiceNumbers()
-        {
-            return _dices.Where(dice => !dice.IsAnswerDice).Select(dice => dice.DiceNumber.Value).ToArray();
-        }
         
         public static Formula FetchCurrentFormula()
         {
@@ -39,11 +34,6 @@ namespace CircleFusion.InGame
         public static List<Dice> GetAllDices()
         {
             return _dices;
-        }
-        
-        public static int GetAnswerNumber()
-        {
-            return _answerDice.DiceNumber.Value;
         }
         
         public static Dice GetLastDice()
@@ -84,7 +74,7 @@ namespace CircleFusion.InGame
             var randomAnswerNumber = Random.Range(1, GameInitialData.Instance.maxDiceValue) * 10 +
                                      Random.Range(1, GameInitialData.Instance.maxDiceValue);
             shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, randomAnswerNumber,gameCt));
-            await UniTask.WhenAll(PuzzleSolver.SolvePuzzle(GetAnswerNumber(), ExtractDiceNumbers()),UniTask.WhenAll(shuffleTasks));
+            await UniTask.WhenAll(PuzzleSolver.SolvePuzzle(randomAnswerNumber, randomNumbers),UniTask.WhenAll(shuffleTasks));
             return PuzzleSolver.Solution;
         }
         

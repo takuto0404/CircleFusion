@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace CircleFusion.InGame
 {
@@ -27,6 +28,7 @@ namespace CircleFusion.InGame
         public static async UniTask SolvePuzzle(int targetAnswer,
             int[] originalNumbers)
         {
+            Debug.Log(targetAnswer);
             _solutions = new List<string>();
             _numbers = originalNumbers.Select(number => (number, number.ToString(), OperatorSymbol.None)).ToArray();
 

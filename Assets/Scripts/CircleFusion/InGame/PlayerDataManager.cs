@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MemoryPack;
@@ -11,21 +13,23 @@ namespace CircleFusion.InGame
         private const int DefaultDiceCount = 5;
         private const int DefaultDiceMax = 6;
         private const string FileName = "SaveData.txt";
-        private static string Path => Application.persistentDataPath;
+        private static string DataPath => Application.persistentDataPath;
         public static PlayerData PlayerData;
         
-        public static async UniTask SavePlayerDataAsync(PlayerData playerData, CancellationToken gameCt)
+        public static void SavePlayerDataAsync(PlayerData playerData, CancellationToken gameCt)
         {
             PlayerData = playerData;
-            var path = System.IO.Path.Combine(Path, FileName);
-            await File.WriteAllBytesAsync(path, MemoryPackSerializer.Serialize(playerData), gameCt).AsUniTask();
+            var path = Path.Combine(DataPath, FileName);
+            var data = MemoryPackSerializer.Serialize(playerData).ToString();
+            PlayerPrefs.SetString("Data",data);
         }
 
-        public static async UniTask LoadPlayerDataAsync(CancellationToken gameCt)
+        public static void LoadPlayerDataAsync(CancellationToken gameCt)
         {
             try
             {
-                var bytes = await File.ReadAllBytesAsync(System.IO.Path.Combine(Path, FileName), gameCt).AsUniTask();
+                var path = Path.Combine(DataPath, FileName);
+                var bytes = Encoding.GetEncoding("UTF-8").GetBytes(PlayerPrefs.GetString("Data"));
                 PlayerData = MemoryPackSerializer.Deserialize<PlayerData>(bytes);
             }
             catch

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 namespace CircleFusion.InGame
 {
@@ -22,6 +23,7 @@ namespace CircleFusion.InGame
             DiceNumber.Value = 0;
             if (IsAnswerDice)
             {
+                Debug.Log(answer);
                 (int tensPlace, int unitsPlace) randomPair = (0, 0);
 
                 for (var i = 0; i < rollTime; i++)

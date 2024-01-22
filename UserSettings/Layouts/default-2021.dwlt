@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1800
     height: 1045
   m_ShowMode: 4
-  m_Title: Game
+  m_Title: Console
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -120,7 +120,7 @@ MonoBehaviour:
   m_MinSize: {x: 400, y: 200}
   m_MaxSize: {x: 32384, y: 16192}
   vertical: 0
-  controlID: 70436
+  controlID: 91
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -145,7 +145,7 @@ MonoBehaviour:
   m_MinSize: {x: 100, y: 200}
   m_MaxSize: {x: 8096, y: 16192}
   vertical: 1
-  controlID: 70478
+  controlID: 28
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -165,8 +165,8 @@ MonoBehaviour:
     y: 0
     width: 850.5
     height: 510.5
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 101, y: 121}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 17}
   m_Panes:
   - {fileID: 16}
@@ -223,7 +223,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 200}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 70437
+  controlID: 92
 --- !u!114 &10
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 70438
+  controlID: 93
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -389,7 +389,7 @@ MonoBehaviour:
   m_ShowGizmos: 0
   m_TargetDisplay: 0
   m_ClearColor: {r: 0, g: 0, b: 0, a: 0}
-  m_TargetSize: {x: 1699, y: 885}
+  m_TargetSize: {x: 1573, y: 885}
   m_TextureFilterMode: 0
   m_TextureHideFlags: 61
   m_RenderIMGUI: 1
@@ -404,8 +404,8 @@ MonoBehaviour:
     m_VRangeLocked: 0
     hZoomLockedByDefault: 0
     vZoomLockedByDefault: 0
-    m_HBaseRangeMin: -424.75
-    m_HBaseRangeMax: 424.75
+    m_HBaseRangeMin: -393.25
+    m_HBaseRangeMax: 393.25
     m_VBaseRangeMin: -221.25
     m_VBaseRangeMax: 221.25
     m_HAllowExceedBaseRangeMin: 1
@@ -833,9 +833,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 924c0200
-      m_LastClickedID: 150674
-      m_ExpandedIDs: 5668feff9268feffac68feff4e69feff8a69feffa469feff8c6afeffdc6afefff66afeffb66bfeff066cfeff2e6efeff20fbfffff4ffffff
+      m_SelectedIDs: 
+      m_LastClickedID: 0
+      m_ExpandedIDs: 06cdffff42cdffff74cfffff34daffff70daffffa2dcfffff6ddffff32deffff64e0ffffbce1fffff8e1ffff2ae4ffff7ee5ffffbae5ffffece7ffffbeeafffffaeaffff2cedffffc6efffff06f0ffff3cf2ffff8cf5ffffc8f5ffffeaf5ffff8ef6ffffcaf6ffffecf6ffffaef7ffffeaf7ffff1cfaffff22fbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -906,16 +906,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scripts/Jamaica/InGame
+  - Assets/Scripts/CircleFusion/InGame
   m_LastFoldersGridSize: 16
-  m_LastProjectPath: /Users/takutomaeda/Jamaica
+  m_LastProjectPath: /Users/takutomaeda/CircleFusion
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 2a6a0000
-    m_LastClickedID: 27178
-    m_ExpandedIDs: 00000000ba690000bc690000be690000c0690000c2690000c4690000c6690000c8690000ca690000ec690000ffffff7f
+    m_SelectedIDs: cc7d0000
+    m_LastClickedID: 32204
+    m_ExpandedIDs: 00000000166a0000186a00001a6a00001c6a00001e6a0000206a0000226a0000246a0000266a00003e6a0000ffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -943,7 +943,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000ba690000bc690000be690000c0690000c2690000c4690000c6690000c8690000ca690000ffffff7f
+    m_ExpandedIDs: 00000000166a0000186a00001a6a00001c6a00001e6a0000206a0000226a0000246a0000266a0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -970,7 +970,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 0
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: 
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -998,7 +998,7 @@ MonoBehaviour:
     m_ScrollPosition: {x: 0, y: 0}
     m_GridSize: 16
   m_SkipHiddenPackages: 0
-  m_DirectoriesAreaWidth: 86
+  m_DirectoriesAreaWidth: 119
 --- !u!114 &20
 MonoBehaviour:
   m_ObjectHideFlags: 52

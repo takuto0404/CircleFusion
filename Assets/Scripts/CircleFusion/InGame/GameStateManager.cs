@@ -59,7 +59,7 @@ namespace CircleFusion.InGame
         private static async UniTask PuzzleFlowAsync()
         {
             var loadCts = new CancellationTokenSource();
-            await PlayerDataManager.LoadPlayerDataAsync(loadCts.Token);
+            PlayerDataManager.LoadPlayerDataAsync(loadCts.Token);
             loadCts.Cancel();
 
             while (true)
@@ -107,7 +107,7 @@ namespace CircleFusion.InGame
                         break;
                 }
 
-                await PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameState.Score, GameState.ComboCount,
+                PlayerDataManager.SavePlayerDataAsync(new PlayerData(GameState.Score, GameState.ComboCount,
                     GameInitialData.Instance.diceCount, GameInitialData.Instance.maxDiceValue), menuCts.Token);
                 menuCts.Cancel();
             }
