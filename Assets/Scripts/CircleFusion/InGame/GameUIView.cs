@@ -20,7 +20,6 @@ namespace CircleFusion.InGame
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button undoStepButton;
         [SerializeField] private GameObject comboCounterImage;
-        [SerializeField] private GameObject messagePanel;
         [SerializeField] private GameObject gameClearPanel;
         [SerializeField] private GameObject gameOverPanel;
         [SerializeField] private GameObject numberBoxPrefab;
@@ -42,7 +41,6 @@ namespace CircleFusion.InGame
         [SerializeField] private TMP_Text comboCountText;
         [SerializeField] private Transform canvasTransform;
         [SerializeField] private UGUILineRenderer lineRenderer;
-        private const float MessageDisplayDuration = 1f;
         private const int DisplayedSolutionCount = 3;
 
         public IUniTaskAsyncEnumerable<AsyncUnit> BackButtonOnClickAsAsyncEnumerable()
@@ -60,7 +58,7 @@ namespace CircleFusion.InGame
                 rectTransform = gameClearPanel.GetComponent<RectTransform>();
                 gameClearPanel.SetActive(true);
 
-                resultTimeText.SetText($"じかん:{GameState.CurrentTime.Value:F2}");
+                resultTimeText.SetText($"のこりじかん:{GameState.CurrentTime.Value:F2}");
             }
             else
             {
@@ -198,13 +196,6 @@ namespace CircleFusion.InGame
             {
                 timeText.color = Color.black;
             }
-        }
-
-        public async UniTask ShowMessageAsync()
-        {
-            messagePanel.SetActive(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(MessageDisplayDuration));
-            messagePanel.SetActive(false);
         }
 
         public void UpdateFormulaText(string formulaString)

@@ -67,14 +67,24 @@ namespace CircleFusion.InGame
 
         public static async UniTask<(bool isSolvable,List<string> solutionStrings)> RollDiceAsync(CancellationToken gameCt)
         {
-            var randomNumbers = Enumerable.Range(1, _dices.Count)
-                .Select(_ => Random.Range(1, GameInitialData.Instance.maxDiceValue + 1)).ToArray();
+            var solvable = false;
+            int[] randomNumbers = {};
+            int randomAnswerNumber = -1;
+            while (!solvable)
+            {
+                randomNumbers = Enumerable.Range(1, _dices.Count)
+                    .Select(_ => Random.Range(1, GameInitialData.Instance.maxDiceValue + 1)).ToArray();
+                randomAnswerNumber = Random.Range(1, GameInitialData.Instance.maxDiceValue) * 10 +
+                                         Random.Range(1, GameInitialData.Instance.maxDiceValue);
+                
+                await PuzzleSolver.SolvePuzzle(randomAnswerNumber, randomNumbers);
+                solvable = PuzzleSolver.Solution.isSolvable;
+            }
+            
             var shuffleTasks = _dices.Select((dice, i) =>
                 dice.RollDiceAsync(i + 1, randomNumbers[i],gameCt)).ToList();
-            var randomAnswerNumber = Random.Range(1, GameInitialData.Instance.maxDiceValue) * 10 +
-                                     Random.Range(1, GameInitialData.Instance.maxDiceValue);
             shuffleTasks.Add(_answerDice.RollDiceAsync(_dices.Count + 1, randomAnswerNumber,gameCt));
-            await UniTask.WhenAll(PuzzleSolver.SolvePuzzle(randomAnswerNumber, randomNumbers),UniTask.WhenAll(shuffleTasks));
+            await UniTask.WhenAll(shuffleTasks);
             return PuzzleSolver.Solution;
         }
         

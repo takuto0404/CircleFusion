@@ -132,11 +132,6 @@ namespace CircleFusion.InGame
             return await gameUIView.SelectOperatorAsync(isCalculable, gameCt);
         }
 
-        public async UniTask ShowMessageAsync()
-        {
-            await gameUIView.ShowMessageAsync();
-        }
-
         public void UpdateFormulaText(string formulaString)
         {
             _formulaString.Value = formulaString;
