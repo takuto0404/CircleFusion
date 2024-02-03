@@ -24,11 +24,9 @@ namespace CircleFusion.InGame
         private static List<string> _solutions;
         private static int _targetAnswer;
 
-
         public static async UniTask SolvePuzzle(int targetAnswer,
             int[] originalNumbers)
         {
-            Debug.Log(targetAnswer);
             _solutions = new List<string>();
             _numbers = originalNumbers.Select(number => (number, number.ToString(), OperatorSymbol.None)).ToArray();
 

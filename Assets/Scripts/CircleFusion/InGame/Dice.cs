@@ -14,16 +14,13 @@ namespace CircleFusion.InGame
         public bool IsActive = true;
         private const float RollIntervalInSeconds = 0.02f;
         
-        //TODO:スコアが大きすぎる
-        //TODO:タイムが反映されるように
-        //TODO:プレイヤーの特徴を分析
+        //TODO:オンライン
         public async UniTask RollDiceAsync(int rollIndex,int answer,CancellationToken gameCt)
         {
             var rollTime = GameInitialData.Instance.rollTime * rollIndex;
             DiceNumber.Value = 0;
             if (IsAnswerDice)
             {
-                Debug.Log(answer);
                 (int tensPlace, int unitsPlace) randomPair = (0, 0);
 
                 for (var i = 0; i < rollTime; i++)

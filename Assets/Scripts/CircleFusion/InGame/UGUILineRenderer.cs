@@ -19,7 +19,7 @@ namespace CircleFusion.InGame
             SetPositions(new[] { startPoint, endPoint });
         }
 
-        public void SetPositions(Vector2[] newPositions)
+        private void SetPositions(Vector2[] newPositions)
         {
             rectTransform.localPosition = Vector3.zero;
             var processedPosition =

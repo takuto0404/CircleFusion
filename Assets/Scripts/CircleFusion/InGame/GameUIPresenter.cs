@@ -102,10 +102,10 @@ namespace CircleFusion.InGame
             uiCts.Cancel();
         }
 
-        public void InitializePuzzle()
+        public void InitializePuzzle(int timeLimit)
         {
             _formulaString.Value = "";
-            gameUIView.InitializePuzzle();
+            gameUIView.InitializePuzzle(timeLimit);
             _diceToNumberBoxMap = new Dictionary<Dice, NumberBox>();
             foreach (var numberBox in gameUIView.numberBoxes)
             {
@@ -114,7 +114,7 @@ namespace CircleFusion.InGame
 
             var answerDice = new Dice();
             _diceToNumberBoxMap.Add(answerDice, gameUIView.answerNumberBox);
-
+            
             DiceCalculator.SetDice(_diceToNumberBoxMap.Keys.ToList(), answerDice);
 
             _numberBoxToDiceMap =

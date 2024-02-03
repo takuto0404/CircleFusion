@@ -81,6 +81,7 @@ namespace CircleFusion.InGame
         public static void SetDice(List<Dice> dices, Dice answerDice)
         {
             _dices = new List<Dice>(dices);
+            _dices.RemoveAt(dices.Count - 1);
             _answerDice = answerDice;
             _answerDice.IsAnswerDice = true;
         }

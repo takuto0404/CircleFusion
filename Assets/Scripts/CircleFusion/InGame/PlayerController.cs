@@ -30,6 +30,16 @@ namespace CircleFusion.InGame
             var numberBoxes = box as NumberBox[] ?? box.ToArray();
             return !numberBoxes.Any() ? null : numberBoxes.First();
         }
+
+        private Vector2 AlignPositionWithScreenSize(Vector2 position)
+        {
+            var screenSizeHalf = new Vector2(Screen.width / 2f,Screen.height / 2f);
+            var position1 = position - screenSizeHalf;
+            var a = 960f / Screen.width;
+            var position2 = new Vector2(position1.x * a, position1.y * a);
+            var position3 = position2 + screenSizeHalf;
+            return position3;
+        }
         
         public async UniTask ProcessPlayerActionAsync(CancellationToken gameCt)
         {
@@ -58,7 +68,7 @@ namespace CircleFusion.InGame
                             var boxInitialPosition = firstNumberBox.initialPosition;
                             using (UniTaskAsyncEnumerable.EveryUpdate().Subscribe(_ =>
                                        lineRenderer.DrawLine(AlignPosition(boxInitialPosition),
-                                           MouseInputProvider.Instance.mousePosition)))
+                                           AlignPositionWithScreenSize(MouseInputProvider.Instance.mousePosition))))
                             {
                                 await MouseInputProvider.Instance.OnHoldUpAsync(gameCt);
                                 secondNumberBox = GetHoveredNumberBox();

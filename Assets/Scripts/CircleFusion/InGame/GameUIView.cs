@@ -85,15 +85,15 @@ namespace CircleFusion.InGame
             {
                 resultTimeText.gameObject.SetActive(true);
                 comboCounterImage.SetActive(false);
-                comboCounterImage.transform.localScale = new Vector2(1.5f, 1.5f);
+                comboCounterImage.transform.localScale = new Vector2(0.75f, 0.75f);
                 comboCountText.SetText(GameState.ComboCount.ToString());
                 comboCounterImage.SetActive(true);
-                resultScoreText.rectTransform.anchoredPosition = new Vector2(0, 275);
+                resultScoreText.rectTransform.anchoredPosition = new Vector2(0, 137.5f);
                 await comboCounterImage.transform.DOScale(new Vector2(1, 1), 0.8f).ToUniTask(cancellationToken: gameCt);
             }
             else
             {
-                resultScoreText.rectTransform.anchoredPosition = new Vector2(0,350);
+                resultScoreText.rectTransform.anchoredPosition = new Vector2(0,175);
             }
             await restartButton.OnClickAsync(gameCt);
         }
@@ -119,7 +119,7 @@ namespace CircleFusion.InGame
             }
         }
 
-        public void InitializePuzzle()
+        public void InitializePuzzle(int timeLimit)
         {
             titlePanel.SetActive(false);
             HideAll();
@@ -138,7 +138,7 @@ namespace CircleFusion.InGame
             }
 
             scoreText.SetText($"ポイント:{GameState.Score}");
-            SetTimerText(0);
+            SetTimerText(timeLimit);
             
             numberBoxes.ForEach(numberBox => numberBox.ShowNumberBox());
             gameClearPanel.SetActive(false);
@@ -156,7 +156,7 @@ namespace CircleFusion.InGame
             numberBoxes.Clear();
             for (var i = 0; i < diceCount; i++)
             {
-                const int let = 310;
+                const int let = 155;
                 var theta = 360 / diceCount * i;
                 var position = new Vector2(Mathf.Sin(theta * Mathf.Deg2Rad) * let,
                     Mathf.Cos(theta * Mathf.Deg2Rad) * let);
@@ -189,7 +189,15 @@ namespace CircleFusion.InGame
 
         public void SetTimerText(float time)
         {
-            timeText.SetText($"じかん:{time:F2}");
+            timeText.SetText($"のこりじかん:{time:F2}");
+            if (time <= 5)
+            {
+                timeText.color = Color.red;
+            }
+            else
+            {
+                timeText.color = Color.black;
+            }
         }
 
         public async UniTask ShowMessageAsync()

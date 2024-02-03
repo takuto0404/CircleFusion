@@ -8,6 +8,7 @@ namespace CircleFusion.InGame
 {
     public static class GameStateManager
     {
+        private const int TimeLimit = 60;
         [RuntimeInitializeOnLoadMethod]
         private static void GameInit()
         {
@@ -16,14 +17,19 @@ namespace CircleFusion.InGame
 
         private static async UniTask CountTimerAsync(CancellationToken gameCt)
         {
-            GameState.CurrentTime.Value = 0;
+            GameState.CurrentTime.Value = TimeLimit;
 
             var startTime = DateTime.Now;
             while (!gameCt.IsCancellationRequested)
             {
                 var diff = DateTime.Now - startTime;
-                GameState.CurrentTime.Value = (float)diff.TotalSeconds;
+                GameState.CurrentTime.Value = TimeLimit - (float)diff.TotalSeconds;
                 await UniTask.DelayFrame(1, cancellationToken: gameCt);
+                if (GameState.CurrentTime.Value <= 0)
+                {
+                    await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: gameCt);
+                    return;
+                }
             }
         }
 
@@ -32,7 +38,7 @@ namespace CircleFusion.InGame
             var playerData = PlayerDataManager.PlayerData;
             GameState.InitializePuzzle(playerData.ComboCount, playerData.Score);
             GameInitialData.Instance.SetInformation(playerData.DiceMax, playerData.DiceCount);
-            GameUIPresenter.Instance.InitializePuzzle();
+            GameUIPresenter.Instance.InitializePuzzle(TimeLimit);
             DiceCalculator.InitializePuzzle();
             PuzzleHistory.InitializePuzzle();
         }
@@ -69,20 +75,15 @@ namespace CircleFusion.InGame
                 InitializePuzzle();
                 
                 var uiTask = GameUIPresenter.Instance.HandlePuzzlePlayAsync(gameCts.Token);
-                
                 await PreparePuzzle(gameCts.Token);
-
-                var timerCts = new CancellationTokenSource();
-                var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(gameCts.Token, timerCts.Token).Token;
-                CountTimerAsync(mergedCt).Forget();
                 
+                var timerTask = CountTimerAsync(gameCts.Token);
                 var retirementTask = GameUIPresenter.Instance.WaitForRetirementAsync(gameCts.Token);
                 var playerTask = PlayerController.Instance.ProcessPlayerActionAsync(gameCts.Token);
                 var gameCompetitionTask =
                     UniTask.WaitUntil(DiceCalculator.IsCorrectReached, cancellationToken: gameCts.Token);
-                var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask);
+                var result = await UniTask.WhenAny(retirementTask, playerTask, uiTask, gameCompetitionTask,timerTask);
                 
-                timerCts.Cancel();
                 if (result == 3)
                 {
                     await GameUIPresenter.Instance.MoveToCenterAsync(gameCts.Token);
@@ -98,6 +99,10 @@ namespace CircleFusion.InGame
                 switch (result)
                 {
                     case 0:
+                        GameState.GameOver();
+                        await GameUIPresenter.Instance.EndGameAnimationAsync(false, menuCts.Token);
+                        break;
+                    case 4:
                         GameState.GameOver();
                         await GameUIPresenter.Instance.EndGameAnimationAsync(false, menuCts.Token);
                         break;
